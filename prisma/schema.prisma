@@ -1,0 +1,403 @@
+//
+// Configuración del generador del cliente de Prisma.
+//
+generator client {
+    provider = "prisma-client-js"
+}
+
+//
+// Configuración de la fuente de datos.
+// En Prisma 7, la URL se gestiona externamente (prisma.config.ts).
+//
+datasource db {
+    provider = "postgresql"
+}
+
+//
+// Modelo de Producto: Representa los artículos físicos a la venta en la tienda.
+//
+model Product {
+    id            String   @id @default(cuid())
+    name          String
+    slug          String   @unique
+    description   String
+    price         Float
+    discountPrice Float?
+    costPrice     Float    @default(0)
+    imageUrls     String[]
+    stock         Int      @default(0)
+    isActive      Boolean  @default(true)
+    brand         String?
+    sku           String?  @unique
+    weight        String?
+    dimensions    String?
+    ingredients   String?
+    howToUse      String?
+    warnings      String?
+    averageRating Float    @default(0)
+    reviewCount   Int      @default(0)
+
+    categoryId String
+    category   Category @relation(fields: [categoryId], references: [id])
+
+    analytics  Analytics[]
+    reviews    Review[]
+    favorites  Favorite[]
+    orderItems OrderItem[]
+
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    helpfulVotes Int      @default(0)
+
+    deletedAt        DateTime?
+    minStockLevel    Int       @default(5)
+    inventoryHistory Json? // [{ date: string, type: string, quantity: number, balance: number, orderId: string }]
+    metadata         Json? // { costPriceHistory: [], profitMargins: [] }
+
+    @@index([categoryId])
+    @@index([slug])
+    @@index([isActive])
+    @@index([averageRating])
+    @@index([deletedAt])
+}
+
+model Category {
+    id          String    @id @default(cuid())
+    name        String    @unique
+    slug        String    @unique
+    description String?
+    icon        String?
+    imageUrl    String?
+    products    Product[]
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+
+    @@index([slug])
+}
+
+model AdminUser {
+    id           String    @id @default(cuid())
+    email        String    @unique
+    name         String?
+    passwordHash String
+    role         AdminRole @default(ADMIN)
+    createdAt    DateTime  @default(now())
+    updatedAt    DateTime  @updatedAt
+
+    accountingEntries AccountingEntry[]
+    contentUpdates    SiteContent[]
+    activityLogs      ActivityLog[]
+}
+
+enum AdminRole {
+    ADMIN
+    SUPERADMIN
+}
+
+model User {
+    id               String    @id @default(cuid())
+    email            String    @unique
+    name             String?
+    passwordHash     String
+    phone            String?
+    avatarUrl        String?
+    resetToken       String?   @unique
+    resetTokenExpiry DateTime?
+
+    // Marketing & Retention Integration
+    isNewsletterSubscribed Boolean               @default(false)
+    newsletterSubscriber   NewsletterSubscriber?
+    abandonedCarts         AbandonedCart[]
+    contactSubmissions     ContactSubmission[]
+
+    favorites Favorite[]
+    reviews   Review[]
+    orders    Order[]
+    createdAt DateTime   @default(now())
+    updatedAt DateTime   @updatedAt
+}
+
+model Favorite {
+    id        String   @id @default(cuid())
+    userId    String
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    productId String
+    product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+
+    @@unique([userId, productId])
+    @@index([userId])
+    @@index([productId])
+}
+
+model Review {
+    id               String   @id @default(cuid())
+    rating           Int
+    title            String?
+    content          String
+    userId           String
+    user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    productId        String
+    product          Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+    isApproved       Boolean  @default(false)
+    adminComment     String?
+    helpfulVotes     Int      @default(0)
+    verifiedPurchase Boolean  @default(false)
+    imageUrls        String[]
+
+    // Integration with Testimonials
+    isFeaturedTestimonial Boolean @default(false)
+    testimonialOrder      Int     @default(0)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([productId])
+    @@index([userId])
+    @@index([rating])
+    @@index([verifiedPurchase])
+    @@index([isFeaturedTestimonial])
+}
+
+model Analytics {
+    id        String        @id @default(cuid())
+    productId String?
+    product   Product?      @relation(fields: [productId], references: [id], onDelete: Cascade)
+    type      AnalyticsType
+    metadata  String?
+    timestamp DateTime      @default(now())
+
+    @@index([productId])
+    @@index([timestamp])
+    @@index([type])
+}
+
+enum AnalyticsType {
+    VIEW
+    CLICK
+    WHATSAPP_CLICK
+    ADD_TO_CART
+    PURCHASE
+}
+
+model Order {
+    id                String            @id @default(cuid())
+    userId            String?
+    user              User?             @relation(fields: [userId], references: [id])
+    customerEmail     String?
+    customerName      String?
+    customerPhone     String?
+    total             Float
+    status            OrderStatus       @default(PENDING)
+    paymentMethod     String
+    paymentId         String?
+    notes             String?
+    manualSale        Boolean           @default(false)
+    items             OrderItem[]
+    invoice           Invoice?
+    accountingEntries AccountingEntry[]
+    createdAt         DateTime          @default(now())
+    updatedAt         DateTime          @updatedAt
+
+    @@index([userId])
+    @@index([status])
+}
+
+model OrderItem {
+    id        String  @id @default(cuid())
+    orderId   String
+    order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    productId String
+    product   Product @relation(fields: [productId], references: [id])
+    quantity  Int
+    price     Float
+    costPrice Float   @default(0)
+
+    @@index([orderId])
+}
+
+enum OrderStatus {
+    PENDING
+    PAID
+    PROCESSING
+    SHIPPED
+    DELIVERED
+    CANCELLED
+}
+
+model ContactSubmission {
+    id          String   @id @default(cuid())
+    name        String
+    email       String
+    message     String
+    responded   Boolean  @default(false)
+    submittedAt DateTime @default(now())
+
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id])
+
+    @@index([email])
+}
+
+// Marketing & Retention
+model NewsletterSubscriber {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    isActive  Boolean  @default(true)
+    source    String?  @default("footer") // footer, popup, checkout
+    tags      String[] // ["customer", "lead", "vip"]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String? @unique
+    user   User?   @relation(fields: [userId], references: [id])
+
+    @@index([email])
+    @@index([isActive])
+}
+
+model AbandonedCart {
+    id        String   @id @default(cuid())
+    cartToken String   @unique
+    email     String? // Si el usuario lo ingresó
+    items     Json // Snapshot del carrito
+    total     Float    @default(0)
+    recovered Boolean  @default(false)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    userId String?
+    user   User?   @relation(fields: [userId], references: [id])
+
+    @@index([email])
+    @@index([recovered])
+    @@index([userId])
+}
+
+model SiteContent {
+    id             String     @id @default(cuid())
+    key            String     @unique
+    value          Json
+    updatedAt      DateTime   @updatedAt
+    helpfulVotes   Int        @default(0)
+    updatedBy      String?
+    updatedById    String?
+    updatedByAdmin AdminUser? @relation(fields: [updatedById], references: [id])
+
+    @@index([key])
+}
+
+model Testimonial {
+    id        String   @id @default(cuid())
+    name      String
+    content   String
+    rating    Int      @default(5)
+    imageUrl  String?
+    isActive  Boolean  @default(true)
+    order     Int      @default(0)
+    createdAt DateTime @default(now())
+
+    @@index([isActive])
+    @@index([order])
+}
+
+model Video {
+    id           String   @id @default(cuid())
+    title        String
+    url          String
+    description  String?
+    thumbnailUrl String?
+    order        Int      @default(0)
+    isActive     Boolean  @default(true)
+    createdAt    DateTime @default(now())
+
+    @@index([isActive])
+    @@index([order])
+}
+
+// ---------------------------------------------------------
+// MODELOS ELITE BUSINESS (CONSOLIDADOS)
+// ---------------------------------------------------------
+
+model Invoice {
+    id            String        @id @default(cuid())
+    invoiceNumber String        @unique
+    status        InvoiceStatus @default(ISSUED)
+    subtotal      Float
+    taxAmount     Float         @default(0)
+    total         Float
+    pdfUrl        String?
+    dueDate       DateTime?
+    issuedAt      DateTime      @default(now())
+    orderId       String        @unique
+    order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    accountingEntries AccountingEntry[]
+
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
+    helpfulVotes Int      @default(0)
+
+    @@index([invoiceNumber])
+    @@index([status])
+}
+
+enum InvoiceStatus {
+    DRAFT
+    ISSUED
+    PAID
+    VOID
+    OVERDUE
+}
+
+model AccountingEntry {
+    id          String        @id @default(cuid())
+    type        EntryType
+    category    EntryCategory @default(SALES)
+    amount      Float
+    description String
+    date        DateTime      @default(now())
+    orderId     String?
+    order       Order?        @relation(fields: [orderId], references: [id])
+    invoiceId   String?
+    invoice     Invoice?      @relation(fields: [invoiceId], references: [id])
+
+    createdById String?
+    createdBy   AdminUser? @relation(fields: [createdById], references: [id])
+
+    createdAt DateTime @default(now())
+
+    @@index([type])
+    @@index([category])
+    @@index([date])
+    @@index([createdById])
+}
+
+model ActivityLog {
+    id        String    @id @default(cuid())
+    action    String
+    module    String
+    details   Json?
+    adminId   String
+    admin     AdminUser @relation(fields: [adminId], references: [id])
+    ipAddress String?
+    timestamp DateTime  @default(now())
+
+    @@index([adminId])
+    @@index([module])
+    @@index([timestamp])
+}
+
+enum EntryType {
+    INCOME
+    EXPENSE
+}
+
+enum EntryCategory {
+    SALES
+    TAX
+    COGS
+    REFUND
+    PURCHASE
+    OTHER
+}

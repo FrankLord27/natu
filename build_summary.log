@@ -1,0 +1,171 @@
+
+> naturajm-v3@3.0.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+./app/admin/mensajes/page.tsx
+57:41  Warning: React Hook useEffect has a missing dependency: 'fetchMessages'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+78:41  Warning: React Hook useEffect has a missing dependency: 'fetchMessages'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/newsletter/page.tsx
+60:44  Warning: React Hook useEffect has a missing dependency: 'fetchSubscribers'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+81:44  Warning: React Hook useEffect has a missing dependency: 'fetchSubscribers'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/pedidos/[id]/factura/page.tsx
+170:6  Warning: React Hook useEffect has a missing dependency: 'fetchInvoice'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/pedidos/[id]/page.tsx
+225:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrder'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/pedidos/page.tsx
+255:6  Warning: React Hook useEffect has a missing dependency: 'fetchOrders'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/productos/page.tsx
+168:6  Warning: React Hook useEffect has a missing dependency: 'fetchProducts'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/testimonios/page.tsx
+88:45  Warning: React Hook useEffect has a missing dependency: 'fetchTestimonials'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+109:45  Warning: React Hook useEffect has a missing dependency: 'fetchTestimonials'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/usuarios/page.tsx
+127:6  Warning: React Hook useEffect has a missing dependency: 'fetchUsers'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/admin/videos/page.tsx
+107:39  Warning: React Hook useEffect has a missing dependency: 'fetchVideos'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./components/SafeImage.tsx
+43:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+93:5  Warning: Image elements must have an alt prop, either with meaningful text, or an empty string for decorative images.  jsx-a11y/alt-text
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+   Collecting page data ...
+   Generating static pages (0/69) ...
+User stats error: n [Error]: Dynamic server usage: Route /api/user/stats couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (/home/frank/Escritorio/naturajm/.next/server/chunks/8948.js:1:37220)
+    at d (/home/frank/Escritorio/naturajm/.next/server/chunks/5571.js:25:27718)
+    at s (/home/frank/Escritorio/naturajm/.next/server/chunks/5571.js:25:20859)
+    at l (/home/frank/Escritorio/naturajm/.next/server/app/api/user/stats/route.js:1:1948)
+    at /home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
+    at /home/frank/Escritorio/naturajm/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
+  description: "Route /api/user/stats couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (17/69) 
+Get orders error: n [Error]: Dynamic server usage: Route /api/user/orders couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error
+    at l (/home/frank/Escritorio/naturajm/.next/server/chunks/8948.js:1:37220)
+    at d (/home/frank/Escritorio/naturajm/.next/server/chunks/5571.js:25:27718)
+    at s (/home/frank/Escritorio/naturajm/.next/server/chunks/5571.js:25:20859)
+    at l (/home/frank/Escritorio/naturajm/.next/server/app/api/user/orders/route.js:1:1954)
+    at /home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:38417
+    at /home/frank/Escritorio/naturajm/node_modules/next/dist/server/lib/trace/tracer.js:140:36
+    at NoopContextManager.with (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:7062)
+    at ContextAPI.with (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:518)
+    at NoopTracer.startActiveSpan (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18093)
+    at ProxyTracer.startActiveSpan (/home/frank/Escritorio/naturajm/node_modules/next/dist/compiled/@opentelemetry/api/index.js:1:18854) {
+  description: "Route /api/user/orders couldn't be rendered statically because it used `headers`. See more info here: https://nextjs.org/docs/messages/dynamic-server-error",
+  digest: 'DYNAMIC_SERVER_USAGE'
+}
+   Generating static pages (34/69) 
+   Generating static pages (51/69) 
+ ✓ Generating static pages (69/69)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    43.4 kB         202 kB
+├ ○ /_not-found                          880 B          88.9 kB
+├ ○ /admin                               7.2 kB          149 kB
+├ ○ /admin/ajustes                       2.54 kB         144 kB
+├ ○ /admin/categorias                    6.68 kB         193 kB
+├ ○ /admin/contabilidad                  3.8 kB          146 kB
+├ ○ /admin/contenido                     6.47 kB         148 kB
+├ ○ /admin/facturacion                   2.17 kB         144 kB
+├ ○ /admin/finanzas                      4.15 kB         146 kB
+├ ○ /admin/inventario                    6.66 kB         148 kB
+├ ○ /admin/login                         2.05 kB         112 kB
+├ ○ /admin/marketing                     1.65 kB         103 kB
+├ ○ /admin/mensajes                      3.2 kB          145 kB
+├ ○ /admin/metricas                      3.28 kB         145 kB
+├ ○ /admin/newsletter                    3.5 kB          105 kB
+├ ○ /admin/pedidos                       5.43 kB         115 kB
+├ ƒ /admin/pedidos/[id]                  3.08 kB         158 kB
+├ ƒ /admin/pedidos/[id]/factura          3.01 kB         113 kB
+├ ○ /admin/productos                     7.61 kB         196 kB
+├ ○ /admin/resenas                       2.68 kB         144 kB
+├ ○ /admin/testimonios                   4.84 kB         194 kB
+├ ○ /admin/usuarios                      4.75 kB         158 kB
+├ ○ /admin/ventas-manuales               3.02 kB         104 kB
+├ ○ /admin/videos                        3.8 kB          148 kB
+├ ƒ /api/admin/content                   0 B                0 B
+├ ○ /api/admin/finanzas                  0 B                0 B
+├ ƒ /api/admin/invoices                  0 B                0 B
+├ ƒ /api/admin/invoices/send             0 B                0 B
+├ ƒ /api/admin/manual-sales              0 B                0 B
+├ ƒ /api/admin/marketing/subscribers     0 B                0 B
+├ ƒ /api/admin/messages                  0 B                0 B
+├ ƒ /api/admin/metrics                   0 B                0 B
+├ ƒ /api/admin/newsletter                0 B                0 B
+├ ƒ /api/admin/orders                    0 B                0 B
+├ ƒ /api/admin/orders/[id]               0 B                0 B
+├ ƒ /api/admin/reviews                   0 B                0 B
+├ ○ /api/admin/stats                     0 B                0 B
+├ ƒ /api/admin/testimonials              0 B                0 B
+├ ƒ /api/admin/upload                    0 B                0 B
+├ ƒ /api/admin/users                     0 B                0 B
+├ ƒ /api/admin/videos                    0 B                0 B
+├ ƒ /api/analytics/view                  0 B                0 B
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/auth/forgot-password            0 B                0 B
+├ ƒ /api/auth/register                   0 B                0 B
+├ ƒ /api/auth/reset-password             0 B                0 B
+├ ƒ /api/categories                      0 B                0 B
+├ ƒ /api/contact                         0 B                0 B
+├ ƒ /api/newsletter                      0 B                0 B
+├ ƒ /api/products                        0 B                0 B
+├ ƒ /api/products/[id]                   0 B                0 B
+├ ƒ /api/reviews                         0 B                0 B
+├ ƒ /api/testimonials                    0 B                0 B
+├ ƒ /api/upload                          0 B                0 B
+├ ƒ /api/user/favorites                  0 B                0 B
+├ ƒ /api/user/orders                     0 B                0 B
+├ ƒ /api/user/orders/[id]                0 B                0 B
+├ ƒ /api/user/profile                    0 B                0 B
+├ ƒ /api/user/stats                      0 B                0 B
+├ ƒ /api/videos                          0 B                0 B
+├ ○ /checkout                            46.4 kB         188 kB
+├ ○ /contacto                            2.59 kB         144 kB
+├ ○ /login                               2.89 kB         163 kB
+├ ○ /mi-cuenta                           2.56 kB         162 kB
+├ ○ /mi-cuenta/favoritos                 5.33 kB         209 kB
+├ ○ /mi-cuenta/pedidos                   3.21 kB         167 kB
+├ ƒ /mi-cuenta/pedidos/[id]              3.31 kB         158 kB
+├ ○ /mi-cuenta/perfil                    2.63 kB         113 kB
+├ ○ /nosotros                            2.49 kB         144 kB
+├ ƒ /productos/[slug]                    11.1 kB         215 kB
+├ ○ /recuperar-contrasena                2.16 kB         153 kB
+├ ○ /registrarse                         3.36 kB         154 kB
+├ ○ /restablecer-contrasena              3.27 kB         154 kB
+├ ○ /robots.txt                          0 B                0 B
+├ ○ /sitemap.xml                         0 B                0 B
+└ ○ /tienda                              8.22 kB         158 kB
++ First Load JS shared by all            88 kB
+  ├ chunks/2117-8173baa0412a13df.js      31.9 kB
+  ├ chunks/fd9d1056-755d00b1192fdebf.js  53.6 kB
+  └ other shared chunks (total)          2.43 kB
+
+
+ƒ Middleware                             47.7 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
