@@ -7,7 +7,7 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.15-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![Prisma](https://img.shields.io/badge/Prisma-7.0-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 [![Styled Components](https://img.shields.io/badge/Styled--Components-6.3-DB7093?style=for-the-badge&logo=styled-components&logoColor=white)](https://styled-components.com/)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
@@ -365,7 +365,7 @@ graph TB
 | **Iconos**        | Lucide React             | Iconografía consistente            |
 | **Estado**        | React Context            | Cart, Wishlist, Orders             |
 | **Base de Datos** | PostgreSQL               | Base de datos relacional           |
-| **ORM**           | Prisma 5.15              | Type-safe database access          |
+| **ORM**           | Prisma 7.0               | Type-safe database access          |
 | **Autenticación** | NextAuth.js + bcrypt     | JWT sessions, role-based           |
 | **Imágenes**      | Cloudinary               | Upload, optimización y CDN         |
 | **Pagos**         | PayPal SDK + Stripe      | Procesamiento de pagos             |
@@ -707,9 +707,10 @@ naturajm/
 
 ### Prerrequisitos
 
-- **Node.js** >= 18.0
+- **Node.js** >= 18.17
 - **PostgreSQL** >= 14
 - **npm** >= 9.0
+- **MinIO** (local vía Docker o instancia externa) — para subida de imágenes
 
 ### Pasos
 
@@ -723,22 +724,31 @@ npm install
 
 # 3. Configurar variables de entorno
 cp .env.example .env
-# Editar .env con tus credenciales (ver seccion siguiente)
+# Editar .env con tus credenciales (ver sección siguiente)
 
-# 4. Generar cliente Prisma
-npx prisma generate
+# 4. Sincronizar el schema con la base de datos
+npm run db:push
 
-# 5. Crear tablas en la base de datos
-npx prisma migrate dev --name init
-
-# 6. Poblar con datos de ejemplo
+# 5. Poblar con datos de ejemplo
 npm run db:seed
 
-# 7. Iniciar servidor de desarrollo
+# 6. Iniciar servidor de desarrollo
 npm run dev
 ```
 
+> **Nota:** `npm install` ejecuta automáticamente `prisma generate` via el hook `postinstall`.
+
 Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+
+### MinIO local (almacenamiento de imágenes)
+
+```bash
+# Levantar MinIO con Docker
+docker compose -f docker-compose-minio.yml up -d
+
+# Consola web disponible en http://localhost:9005
+# Usuario: minioadmin  /  Contraseña: minioadminpassword
+```
 
 ---
 
@@ -747,32 +757,47 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
 Crea un archivo `.env` basado en `.env.example`:
 
 ```env
-# -- Base de Datos --
+# ── Base de Datos ──────────────────────────────────────────────
 DATABASE_URL="postgresql://user:password@localhost:5432/naturajm?schema=public"
 
-# -- NextAuth --
+# ── NextAuth ───────────────────────────────────────────────────
+# Generar con: openssl rand -base64 32
 NEXTAUTH_SECRET="tu-clave-secreta-super-segura"
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3000"           # En prod: https://tu-dominio.com
 
-# -- Cloudinary (Imagenes) --
+# ── Cloudinary (Imágenes CDN) ──────────────────────────────────
 CLOUDINARY_CLOUD_NAME="tu-cloud-name"
 CLOUDINARY_API_KEY="tu-api-key"
 CLOUDINARY_API_SECRET="tu-api-secret"
 
-# -- PayPal --
+# ── MinIO (Storage local de archivos) ─────────────────────────
+MINIO_ENDPOINT="localhost"
+MINIO_PORT="9004"
+MINIO_USE_SSL="false"
+MINIO_ACCESS_KEY="minioadmin"
+MINIO_SECRET_KEY="minioadminpassword"
+MINIO_BUCKET_NAME="naturajm-assets"
+
+# ── Resend (Emails transaccionales) ───────────────────────────
+RESEND_API_KEY="re_..."
+
+# ── PayPal ─────────────────────────────────────────────────────
 NEXT_PUBLIC_PAYPAL_CLIENT_ID="tu-paypal-client-id"
 PAYPAL_CLIENT_SECRET="tu-paypal-secret"
 
-# -- Stripe --
+# ── Stripe ─────────────────────────────────────────────────────
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_..."
 STRIPE_SECRET_KEY="sk_test_..."
 
-# -- WhatsApp --
+# ── WhatsApp ───────────────────────────────────────────────────
 NEXT_PUBLIC_WHATSAPP_NUMBER="18091234567"
 
-# -- App --
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
+# ── App ────────────────────────────────────────────────────────
+NEXT_PUBLIC_APP_URL="http://localhost:3000"   # En prod: https://tu-dominio.com
 ```
+
+> **Producción:** `NEXTAUTH_URL` y `NEXT_PUBLIC_APP_URL` deben apuntar a tu dominio real con HTTPS.  
+> `NEXTAUTH_SECRET` debe ser un valor aleatorio seguro (`openssl rand -base64 32`).
 
 ---
 
@@ -800,56 +825,145 @@ npm run db:studio
 
 ## 🧰 Scripts Disponibles
 
-| Script        | Comando               | Descripción            |
-| ------------- | --------------------- | ---------------------- |
-| `dev`         | `npm run dev`         | Servidor de desarrollo |
-| `build`       | `npm run build`       | Build de producción    |
-| `start`       | `npm run start`       | Iniciar en producción  |
-| `lint`        | `npm run lint`        | Linter ESLint          |
-| `db:generate` | `npm run db:generate` | Generar Prisma Client  |
-| `db:migrate`  | `npm run db:migrate`  | Ejecutar migraciones   |
-| `db:deploy`   | `npm run db:deploy`   | Desplegar migraciones  |
-| `db:seed`     | `npm run db:seed`     | Poblar BD con datos    |
-| `db:studio`   | `npm run db:studio`   | GUI de base de datos   |
-| `db:push`     | `npm run db:push`     | Push schema directo    |
+| Script        | Comando               | Descripción                                         |
+| ------------- | --------------------- | --------------------------------------------------- |
+| `dev`         | `npm run dev`         | Servidor de desarrollo                              |
+| `build`       | `npm run build`       | `prisma generate` + build Next.js (sin tocar la BD) |
+| `start`       | `npm run start`       | Iniciar servidor en producción                      |
+| `lint`        | `npm run lint`        | Linter ESLint                                       |
+| `db:generate` | `npm run db:generate` | Generar Prisma Client                               |
+| `db:push`     | `npm run db:push`     | Sincronizar schema con la BD (desarrollo/prod)      |
+| `db:migrate`  | `npm run db:migrate`  | Crear migración en desarrollo                       |
+| `db:deploy`   | `npm run db:deploy`   | Aplicar migraciones en producción                   |
+| `db:seed`     | `npm run db:seed`     | Poblar BD con datos de ejemplo                      |
+| `db:studio`   | `npm run db:studio`   | GUI visual de base de datos                         |
 
 ---
 
 ## 🌐 Despliegue
 
-### Vercel (Recomendado)
+> **Importante:** el script `build` solo ejecuta `prisma generate && next build`.
+> La sincronización de la base de datos (`db:push`) debe correrse **una vez**, antes de iniciar la app, no en cada build.
+
+### Flujo de deploy (cualquier plataforma)
+
+```
+1. npm install          → instala deps + genera Prisma Client (postinstall)
+2. npm run build        → prisma generate + next build
+3. npm run db:push      → sincroniza el schema con la BD  ← una sola vez / por cambio de schema
+4. npm start            → inicia el servidor Next.js
+```
+
+---
+
+### Vercel
+
+1. Conecta el repositorio en [vercel.com](https://vercel.com).
+2. Configura todas las variables de entorno en **Settings → Environment Variables**.
+3. El build command por defecto (`npm run build`) es suficiente.
+4. Corre `npm run db:push` manualmente desde tu máquina apuntando a la BD de producción antes del primer deploy (o usa Railway/Supabase con el CLI).
 
 ```bash
-# Instalar Vercel CLI
-npm i -g vercel
-
-# Desplegar
-vercel
+# Ejemplo: sincronizar schema desde local apuntando a prod
+DATABASE_URL="postgresql://..." npm run db:push
 ```
 
-Configura las variables de entorno en el dashboard de Vercel.
+---
 
-### Docker
+### Railway / Render / Fly.io (VPS con Docker)
 
 ```dockerfile
-FROM node:18-alpine AS builder
+# ── Build stage ──────────────────────────────────────────────
+FROM node:20-alpine AS builder
 WORKDIR /app
+
 COPY package*.json ./
 RUN npm ci
+
 COPY . .
-RUN npx prisma generate
 RUN npm run build
 
-FROM node:18-alpine AS runner
+# ── Runner stage ─────────────────────────────────────────────
+FROM node:20-alpine AS runner
 WORKDIR /app
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 EXPOSE 3000
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
 ```
+
+> Para usar el output standalone, añade `output: 'standalone'` en `next.config.mjs`.
+
+#### docker-compose completo (app + PostgreSQL + MinIO)
+
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: naturajm
+      POSTGRES_USER: naturajm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://naturajm:${POSTGRES_PASSWORD}@postgres:5432/naturajm
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: "9000"
+      # ... resto de variables
+    depends_on:
+      - postgres
+      - minio
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  minio_data:
+```
+
+---
+
+### Checklist de producción
+
+- [ ] `NEXTAUTH_SECRET` generado con `openssl rand -base64 32`
+- [ ] `NEXTAUTH_URL` apunta al dominio real con HTTPS
+- [ ] `NEXT_PUBLIC_APP_URL` apunta al dominio real con HTTPS
+- [ ] `DATABASE_URL` apunta a la BD de producción
+- [ ] `npm run db:push` corrido al menos una vez contra la BD de producción
+- [ ] Credenciales de Stripe/PayPal son de **producción** (`pk_live_...` / `sk_live_...`)
+- [ ] `RESEND_API_KEY` configurado y dominio verificado en Resend
+- [ ] MinIO accesible públicamente (o usar Cloudinary exclusivamente para imágenes)
+- [ ] Variables `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` cambiadas (no usar `minioadmin`)
+- [ ] Dominio de email en `lib/email.ts` actualizado (`onboarding@resend.dev` → tu dominio)
 
 ---
 
