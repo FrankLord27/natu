@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache";
 import { sendEmail, getOrderConfirmationTemplate } from "@/lib/email";
 
 /**
@@ -18,7 +18,7 @@ import { sendEmail, getOrderConfirmationTemplate } from "@/lib/email";
  * @param options - Opciones de filtrado (query, category, minPrice, maxPrice, minRating, sort).
  * @returns Objeto con éxito, datos (array de productos) o error.
  */
-export async function getProducts(
+const _getProducts = async (
   options: {
     query?: string;
     category?: string;
@@ -29,7 +29,7 @@ export async function getProducts(
     page?: number;
     limit?: number;
   } = {},
-) {
+) => {
   try {
     const {
       query,
@@ -97,7 +97,12 @@ export async function getProducts(
     console.error("Error al obtener productos:", error);
     return { success: false, error: "No se pudieron cargar los productos" };
   }
-}
+};
+
+export const getProducts = unstable_cache(_getProducts, ["products"], {
+  revalidate: 60,
+  tags: ["products"],
+});
 
 /**
  * Obtiene un producto específico mediante su slug único.
@@ -106,16 +111,17 @@ export async function getProducts(
  * @param slug - El slug identificador del producto.
  * @returns Objeto con éxito, datos del producto o error.
  */
-export async function getProductBySlug(slug: string) {
+const _getProductBySlug = async (slug: string) => {
   try {
     const product = await prisma.product.findUnique({
       where: { slug },
       include: {
         category: true,
         reviews: {
+          where: { isApproved: true },
           include: { user: { select: { name: true, avatarUrl: true } } },
           orderBy: { createdAt: "desc" },
-          take: 10,
+          take: 20,
         },
       },
     });
@@ -125,7 +131,13 @@ export async function getProductBySlug(slug: string) {
     console.error("Error al obtener producto por slug:", error);
     return { success: false, error: "No se pudo cargar el producto" };
   }
-}
+};
+
+export const getProductBySlug = unstable_cache(
+  _getProductBySlug,
+  ["product-slug"],
+  { revalidate: 60, tags: ["products"] },
+);
 
 /**
  * Obtiene todas las categorías disponibles ordenadas alfabéticamente.
@@ -133,7 +145,7 @@ export async function getProductBySlug(slug: string) {
  *
  * @returns Objeto con éxito, datos (array de categorías) o error.
  */
-export async function getCategories() {
+const _getCategories = async () => {
   try {
     const categories = await prisma.category.findMany({
       orderBy: { name: "asc" },
@@ -143,7 +155,12 @@ export async function getCategories() {
   } catch {
     return { success: false, error: "No se pudieron cargar las categorías" };
   }
-}
+};
+
+export const getCategories = unstable_cache(_getCategories, ["categories"], {
+  revalidate: 300,
+  tags: ["categories"],
+});
 
 // --- Gestión de Productos (Admin) ---
 
@@ -197,9 +214,10 @@ export async function createProduct(formData: {
         warnings: formData.warnings,
       },
     });
-    // Forzamos la actualización de las páginas para reflejar los nuevos datos
     revalidatePath("/tienda");
     revalidatePath("/admin/productos");
+    revalidateTag("products");
+    revalidateTag("categories");
     return { success: true, data: product };
   } catch (error: any) {
     console.error("Error al crear producto:", error);
@@ -271,6 +289,7 @@ export async function updateProduct(
     const product = await prisma.product.update({ where: { id }, data });
     revalidatePath("/tienda");
     revalidatePath("/admin/productos");
+    revalidateTag("products");
     return { success: true, data: product };
   } catch (error: any) {
     console.error("Error al actualizar producto:", error);
@@ -292,6 +311,7 @@ export async function deleteProduct(id: string) {
     await prisma.product.delete({ where: { id } });
     revalidatePath("/tienda");
     revalidatePath("/admin/productos");
+    revalidateTag("products");
     return { success: true };
   } catch (error) {
     console.error("Error al eliminar producto:", error);
@@ -317,6 +337,7 @@ export async function toggleProductVisibility(
     });
     revalidatePath("/tienda");
     revalidatePath("/admin/productos");
+    revalidateTag("products");
     return { success: true };
   } catch (error) {
     console.error("Error al alternar visibilidad:", error);
@@ -443,10 +464,24 @@ export async function submitReview(data: {
         rating: data.rating,
         title: data.title || "",
         content: data.content,
+        isApproved: true,
       },
     });
 
+    // Recalculate product rating
+    const allReviews = await prisma.review.findMany({
+      where: { productId: data.productId, isApproved: true },
+      select: { rating: true },
+    });
+    const avg =
+      allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length;
+    await prisma.product.update({
+      where: { id: data.productId },
+      data: { averageRating: avg, reviewCount: allReviews.length },
+    });
+
     revalidatePath(`/productos/[slug]`, "layout");
+    revalidateTag("products");
     return { success: true };
   } catch (error) {
     console.error("Error al enviar reseña:", error);

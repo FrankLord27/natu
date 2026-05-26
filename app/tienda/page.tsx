@@ -5,14 +5,12 @@ import styled from "styled-components";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  Filter,
   SlidersHorizontal,
   X,
   Grid,
   List,
-  ChevronDown,
   Star,
-  Layout as LayoutIcon,
+  ChevronDown,
 } from "lucide-react";
 import { getProducts, getCategories } from "@/lib/actions";
 import { ProductCard } from "@/components/products/ProductCard";
@@ -26,96 +24,8 @@ const Page = styled.div`
   background: #fafafa;
 `;
 
-const Layout = styled.div`
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 40px;
-  @media (max-width: ${(p) => p.theme.breakpoints.lg}) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Sidebar = styled.aside`
-  @media (max-width: ${(p) => p.theme.breakpoints.lg}) {
-    display: none;
-    &.$mobile-open {
-      display: block;
-    }
-  }
-`;
-
-const FilterSection = styled.div`
-  background: white;
-  border-radius: 20px;
-  padding: 25px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  margin-bottom: 25px;
-
-  h4 {
-    font-size: 1rem;
-    font-weight: 800;
-    margin-bottom: 18px;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-`;
-
-const RangeInput = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1.5px solid #eee;
-    font-size: 0.85rem;
-  }
-`;
-
-const RatingFilter = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-`;
-
-const RatingBtn = styled.button<{ $active: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: ${(p) => (p.$active ? p.theme.colors.primary : "#666")};
-  transition: all 0.2s;
-  &:hover {
-    color: ${(p) => p.theme.colors.primary};
-  }
-  .stars {
-    display: flex;
-    gap: 2px;
-  }
-`;
-
-const ViewToggle = styled.div`
-  display: flex;
-  background: #eee;
-  padding: 4px;
-  border-radius: 10px;
-`;
-
-const ViewBtn = styled.button<{ $active: boolean }>`
-  padding: 6px 10px;
-  border-radius: 8px;
-  background: ${(p) => (p.$active ? "white" : "transparent")};
-  color: ${(p) => (p.$active ? p.theme.colors.primary : "#999")};
-  box-shadow: ${(p) => (p.$active ? "0 2px 6px rgba(0,0,0,0.1)" : "none")};
-  transition: all 0.3s;
-`;
-
 const HeroBanner = styled.section`
-  padding: 60px 5%;
+  padding: 50px 5%;
   background: linear-gradient(
     135deg,
     ${(p) => p.theme.colors.primaryPale} 0%,
@@ -123,33 +33,32 @@ const HeroBanner = styled.section`
   );
   text-align: center;
   h1 {
-    font-size: 2.8rem;
+    font-size: 2.5rem;
     font-weight: 900;
     color: ${(p) => p.theme.colors.text};
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     @media (max-width: ${(p) => p.theme.breakpoints.md}) {
-      font-size: 2rem;
+      font-size: 1.8rem;
     }
   }
   p {
     color: ${(p) => p.theme.colors.textLight};
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 `;
 
 const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;
-  padding: 40px 5%;
+  padding: 30px 5%;
 `;
 
-const TopBar = styled.div`
+const ControlsBar = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 35px;
+  gap: 12px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
-  gap: 15px;
 `;
 
 const SearchBox = styled.div`
@@ -157,10 +66,10 @@ const SearchBox = styled.div`
   align-items: center;
   background: white;
   border: 2px solid ${(p) => p.theme.colors.border};
-  border-radius: 14px;
-  padding: 0 16px;
+  border-radius: 12px;
+  padding: 0 14px;
   flex: 1;
-  max-width: 400px;
+  min-width: 200px;
   transition: border-color 0.3s;
   &:focus-within {
     border-color: ${(p) => p.theme.colors.primary};
@@ -168,48 +77,201 @@ const SearchBox = styled.div`
   input {
     border: none;
     outline: none;
-    padding: 14px 8px;
+    padding: 12px 8px;
     flex: 1;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    background: transparent;
   }
 `;
 
-const Controls = styled.div`
+const FilterToggle = styled.button<{ $active: boolean; $count: number }>`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 2px solid
+    ${(p) => (p.$active ? p.theme.colors.primary : p.theme.colors.border)};
+  background: ${(p) => (p.$active ? p.theme.colors.primaryPale : "white")};
+  color: ${(p) => (p.$active ? p.theme.colors.primary : "#666")};
+  font-weight: 700;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  transition: all 0.2s;
+  position: relative;
+  &:hover {
+    border-color: ${(p) => p.theme.colors.primary};
+  }
+  ${(p) =>
+    p.$count > 0 &&
+    `
+    &::after {
+      content: "${p.$count}";
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: ${p.theme.colors.primary};
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  `}
 `;
 
-const SortSelect = styled.select`
-  padding: 12px 16px;
-  border: 2px solid ${(p) => p.theme.colors.border};
-  border-radius: 12px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
+const ViewToggle = styled.div`
+  display: flex;
   background: white;
-  &:focus {
-    border-color: ${(p) => p.theme.colors.primary};
-    outline: none;
+  border: 2px solid ${(p) => p.theme.colors.border};
+  padding: 3px;
+  border-radius: 10px;
+`;
+
+const ViewBtn = styled.button<{ $active: boolean }>`
+  padding: 6px 10px;
+  border-radius: 7px;
+  background: ${(p) =>
+    p.$active ? p.theme.colors.primaryPale : "transparent"};
+  color: ${(p) => (p.$active ? p.theme.colors.primary : "#999")};
+  transition: all 0.2s;
+`;
+
+const FiltersPanel = styled(motion.div)`
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  border: 1px solid #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const FilterGroup = styled.div`
+  h4 {
+    font-size: 0.8rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #999;
+    margin-bottom: 10px;
   }
 `;
 
-const Tab = styled.button<{ $active: boolean }>`
-  padding: 10px 22px;
-  border-radius: 50px;
+const CategoryChips = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const Chip = styled.button<{ $active: boolean }>`
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 2px solid ${(p) => (p.$active ? p.theme.colors.primary : "#e8e8e8")};
+  background: ${(p) => (p.$active ? p.theme.colors.primaryPale : "white")};
+  color: ${(p) => (p.$active ? p.theme.colors.primary : "#555")};
   font-size: 0.85rem;
-  font-weight: 700;
-  text-align: left;
-  background: ${({ $active, theme }) =>
-    $active ? theme.colors.primary : "white"};
-  color: ${({ $active }) => ($active ? "white" : "#666")};
-  border: 2px solid
-    ${({ $active, theme }) => ($active ? theme.colors.primary : "#e0e0e0")};
-  transition: all 0.3s ease;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
   &:hover {
     border-color: ${(p) => p.theme.colors.primary};
-    color: ${({ $active, theme }) =>
-      $active ? "white" : theme.colors.primary};
+  }
+`;
+
+const FilterRow = styled.div`
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+`;
+
+const PriceInputs = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  input {
+    width: 90px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid #e8e8e8;
+    font-size: 0.85rem;
+    &:focus {
+      outline: none;
+      border-color: ${(p) => p.theme.colors.primary};
+    }
+  }
+  span {
+    color: #999;
+    font-weight: 600;
+  }
+`;
+
+const RatingChips = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+const RatingChip = styled.button<{ $active: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 2px solid ${(p) => (p.$active ? "#FFB800" : "#e8e8e8")};
+  background: ${(p) => (p.$active ? "#FFF8E1" : "white")};
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${(p) => (p.$active ? "#E65100" : "#666")};
+  cursor: pointer;
+  transition: all 0.2s;
+`;
+
+const ClearBtn = styled.button`
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #999;
+  text-decoration: underline;
+  align-self: center;
+  &:hover {
+    color: #333;
+  }
+`;
+
+const ResultsBar = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 600;
+`;
+
+const ProductGrid = styled.div<{ $view: "grid" | "list" }>`
+  display: grid;
+  grid-template-columns: ${(p) =>
+    p.$view === "grid" ? "repeat(auto-fill, minmax(260px, 1fr))" : "1fr"};
+  gap: 24px;
+`;
+
+const SkeletonCard = styled.div`
+  height: 340px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e8e8e8 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 16px;
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 `;
 
@@ -228,13 +290,6 @@ const EmptyState = styled.div`
   }
 `;
 
-const ProductGrid = styled.div<{ $view: "grid" | "list" }>`
-  display: grid;
-  grid-template-columns: ${(p) =>
-    p.$view === "grid" ? "repeat(auto-fill, minmax(280px, 1fr))" : "1fr"};
-  gap: 30px;
-`;
-
 export default function Tienda() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -243,29 +298,26 @@ export default function Tienda() {
   const [sort, setSort] = useState("newest");
   const [loading, setLoading] = useState(true);
   const [view, setView] = useState<"grid" | "list">("grid");
-
-  // Pagination State
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(12);
-  const [pagination, setPagination] = useState<any>(null);
-
-  const sortOptions = [
-    { value: "newest", label: "Nuevos" },
-    { value: "price-asc", label: "Precio Bajo" },
-    { value: "price-desc", label: "Precio Alto" },
-    { value: "rating", label: "Rating" },
-  ];
-
-  const limitOptions = [
-    { value: "12", label: "12 por página" },
-    { value: "24", label: "24 por página" },
-    { value: "48", label: "48 por página" },
-  ];
-
-  // Filters
+  const [showFilters, setShowFilters] = useState(false);
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [minRating, setMinRating] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(12);
+  const [pagination, setPagination] = useState<any>(null);
+
+  const sortOptions = [
+    { value: "newest", label: "Más nuevos" },
+    { value: "price-asc", label: "Precio: menor a mayor" },
+    { value: "price-desc", label: "Precio: mayor a menor" },
+    { value: "rating", label: "Mejor valorados" },
+  ];
+
+  const activeFiltersCount =
+    (selectedCategory !== "Todos" ? 1 : 0) +
+    (minPrice ? 1 : 0) +
+    (maxPrice ? 1 : 0) +
+    (minRating > 0 ? 1 : 0);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -302,7 +354,7 @@ export default function Tienda() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(fetchProducts, 400);
+    const timer = setTimeout(fetchProducts, 300);
     return () => clearTimeout(timer);
   }, [fetchProducts]);
 
@@ -311,6 +363,10 @@ export default function Tienda() {
     const cat = params.get("category");
     if (cat) setSelectedCategory(cat);
   }, []);
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, selectedCategory, minPrice, maxPrice, minRating, sort]);
 
   const clearFilters = () => {
     setMinPrice("");
@@ -321,16 +377,11 @@ export default function Tienda() {
     setPage(1);
   };
 
-  // Reset page when filters change
-  useEffect(() => {
-    setPage(1);
-  }, [search, selectedCategory, minPrice, maxPrice, minRating, sort, limit]);
-
   return (
     <Page>
       <HeroBanner>
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
         >
           Nuestra Tienda
@@ -338,204 +389,213 @@ export default function Tienda() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
         >
           El poder de la naturaleza en tus manos
         </motion.p>
       </HeroBanner>
 
       <Container>
-        <Layout>
-          <Sidebar>
-            <FilterSection>
-              <h4>
-                <Filter size={18} /> Categorías
-              </h4>
-              <div
-                style={{ display: "flex", flexDirection: "column", gap: 10 }}
-              >
-                <Tab
-                  $active={selectedCategory === "Todos"}
-                  onClick={() => setSelectedCategory("Todos")}
-                >
-                  Todos
-                </Tab>
-                {categories.map((cat) => (
-                  <Tab
-                    key={cat.id}
-                    $active={selectedCategory === cat.name}
-                    onClick={() => setSelectedCategory(cat.name)}
+        {/* Top Controls */}
+        <ControlsBar>
+          <SearchBox>
+            <Search size={16} color="#999" />
+            <input
+              placeholder="Busca productos naturales..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            {search && (
+              <button onClick={() => setSearch("")}>
+                <X size={15} color="#999" />
+              </button>
+            )}
+          </SearchBox>
+
+          <FilterToggle
+            $active={showFilters}
+            $count={activeFiltersCount}
+            onClick={() => setShowFilters((v) => !v)}
+          >
+            <SlidersHorizontal size={16} />
+            Filtros
+            <ChevronDown
+              size={14}
+              style={{
+                transform: showFilters ? "rotate(180deg)" : "rotate(0deg)",
+                transition: "transform 0.2s",
+              }}
+            />
+          </FilterToggle>
+
+          <CustomDropdown
+            options={sortOptions}
+            value={sort}
+            onChange={setSort}
+            width="210px"
+          />
+
+          <ViewToggle>
+            <ViewBtn $active={view === "grid"} onClick={() => setView("grid")}>
+              <Grid size={16} />
+            </ViewBtn>
+            <ViewBtn $active={view === "list"} onClick={() => setView("list")}>
+              <List size={16} />
+            </ViewBtn>
+          </ViewToggle>
+        </ControlsBar>
+
+        {/* Collapsible Filters Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <FiltersPanel
+              initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+              animate={{ opacity: 1, height: "auto", marginBottom: 20 }}
+              exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <FilterGroup>
+                <h4>Categoría</h4>
+                <CategoryChips>
+                  <Chip
+                    $active={selectedCategory === "Todos"}
+                    onClick={() => setSelectedCategory("Todos")}
                   >
-                    {cat.name}{" "}
-                    {cat._count && (
-                      <span style={{ opacity: 0.6, fontSize: "0.75rem" }}>
-                        ({cat._count.products})
-                      </span>
-                    )}
-                  </Tab>
-                ))}
-              </div>
-            </FilterSection>
+                    Todos
+                  </Chip>
+                  {categories.map((cat) => (
+                    <Chip
+                      key={cat.id}
+                      $active={selectedCategory === cat.name}
+                      onClick={() => setSelectedCategory(cat.name)}
+                    >
+                      {cat.name}
+                      {cat._count && (
+                        <span
+                          style={{
+                            opacity: 0.6,
+                            marginLeft: 4,
+                            fontSize: "0.75rem",
+                          }}
+                        >
+                          ({cat._count.products})
+                        </span>
+                      )}
+                    </Chip>
+                  ))}
+                </CategoryChips>
+              </FilterGroup>
 
-            <FilterSection>
-              <h4>
-                <SlidersHorizontal size={18} /> Rango de Precio
-              </h4>
-              <RangeInput>
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={minPrice}
-                  onChange={(e) => setMinPrice(e.target.value)}
-                />
-                <span>-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(e.target.value)}
-                />
-              </RangeInput>
-            </FilterSection>
+              <FilterRow>
+                <FilterGroup>
+                  <h4>Rango de precio</h4>
+                  <PriceInputs>
+                    <input
+                      type="number"
+                      placeholder="Mín"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                    />
+                    <span>—</span>
+                    <input
+                      type="number"
+                      placeholder="Máx"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                    />
+                  </PriceInputs>
+                </FilterGroup>
 
-            <FilterSection>
-              <h4>
-                <Star size={18} /> Calificación
-              </h4>
-              <RatingFilter>
-                {[4, 3, 2].map((r) => (
-                  <RatingBtn
-                    key={r}
-                    $active={minRating === r}
-                    onClick={() => setMinRating(minRating === r ? 0 : r)}
-                  >
-                    <div className="stars">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          size={14}
-                          fill={i < r ? "#FFB800" : "none"}
-                          color="#FFB800"
-                        />
-                      ))}
-                    </div>
-                    o más
-                  </RatingBtn>
-                ))}
-              </RatingFilter>
-            </FilterSection>
+                <FilterGroup>
+                  <h4>Calificación mínima</h4>
+                  <RatingChips>
+                    {[4, 3, 2].map((r) => (
+                      <RatingChip
+                        key={r}
+                        $active={minRating === r}
+                        onClick={() => setMinRating(minRating === r ? 0 : r)}
+                      >
+                        {[...Array(r)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={12}
+                            fill="#FFB800"
+                            color="#FFB800"
+                          />
+                        ))}
+                        +
+                      </RatingChip>
+                    ))}
+                  </RatingChips>
+                </FilterGroup>
 
+                {activeFiltersCount > 0 && (
+                  <ClearBtn onClick={clearFilters}>Limpiar todo</ClearBtn>
+                )}
+              </FilterRow>
+            </FiltersPanel>
+          )}
+        </AnimatePresence>
+
+        {/* Results Info */}
+        <ResultsBar>
+          <span>
+            {loading
+              ? "Buscando..."
+              : pagination
+                ? `${pagination.total} producto${pagination.total !== 1 ? "s" : ""} encontrado${pagination.total !== 1 ? "s" : ""}`
+                : `${products.length} producto${products.length !== 1 ? "s" : ""}`}
+          </span>
+          {pagination && pagination.totalPages > 1 && (
+            <span>
+              Página {page} de {pagination.totalPages}
+            </span>
+          )}
+        </ResultsBar>
+
+        {/* Product Grid */}
+        {loading ? (
+          <ProductGrid $view={view}>
+            {[...Array(12)].map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </ProductGrid>
+        ) : products.length === 0 ? (
+          <EmptyState>
+            <h3>Sin resultados</h3>
+            <p>Intenta ajustar los filtros o buscar algo diferente.</p>
+            <br />
             <button
               onClick={clearFilters}
               style={{
-                width: "100%",
-                padding: "12px",
-                borderRadius: "12px",
-                background: "#f0f0f0",
+                color: "#314e32",
                 fontWeight: 700,
-                color: "#666",
-                marginTop: 20,
+                textDecoration: "underline",
               }}
             >
-              Limpiar Filtros
+              Ver todos los productos
             </button>
-          </Sidebar>
-
-          <div>
-            <TopBar>
-              <SearchBox>
-                <Search size={18} color="#999" />
-                <input
-                  placeholder="Busca cremas, aceites, jabones..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-                {search && (
-                  <button onClick={() => setSearch("")}>
-                    <X size={16} />
-                  </button>
-                )}
-              </SearchBox>
-
-              <Controls>
-                <ViewToggle>
-                  <ViewBtn
-                    $active={view === "grid"}
-                    onClick={() => setView("grid")}
-                  >
-                    <Grid size={18} />
-                  </ViewBtn>
-                  <ViewBtn
-                    $active={view === "list"}
-                    onClick={() => setView("list")}
-                  >
-                    <List size={18} />
-                  </ViewBtn>
-                </ViewToggle>
-
-                <CustomDropdown
-                  options={sortOptions}
-                  value={sort}
-                  onChange={setSort}
-                  width="180px"
-                />
-
-                <CustomDropdown
-                  options={limitOptions}
-                  value={limit.toString()}
-                  onChange={(val) => setLimit(parseInt(val))}
-                  width="160px"
-                />
-              </Controls>
-            </TopBar>
-
-            {loading ? (
-              <ProductGrid $view={view}>
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      height: 350,
-                      background: "#eee",
-                      borderRadius: 20,
-                      animation: "pulse 1.5s infinite",
-                    }}
-                  />
-                ))}
-              </ProductGrid>
-            ) : products.length === 0 ? (
-              <EmptyState>
-                <h3>Oops! No hay resultados</h3>
-                <p>Intenta ajustar tus filtros para encontrar lo que buscas.</p>
-                <br />
-                <button
-                  onClick={clearFilters}
-                  style={{ color: "#314e32", fontWeight: 700 }}
-                >
-                  Ver todo
-                </button>
-              </EmptyState>
-            ) : (
-              <ProductGrid $view={view}>
-                {products.map((p) =>
-                  view === "grid" ? (
-                    <ProductCard key={p.id} product={p} />
-                  ) : (
-                    <ProductListCard key={p.id} product={p} />
-                  ),
-                )}
-              </ProductGrid>
+          </EmptyState>
+        ) : (
+          <ProductGrid $view={view}>
+            {products.map((p) =>
+              view === "grid" ? (
+                <ProductCard key={p.id} product={p} />
+              ) : (
+                <ProductListCard key={p.id} product={p} />
+              ),
             )}
+          </ProductGrid>
+        )}
 
-            {pagination && pagination.totalPages > 1 && (
-              <Pagination
-                currentPage={page}
-                totalPages={pagination.totalPages}
-                onPageChange={setPage}
-              />
-            )}
-          </div>
-        </Layout>
+        {/* Pagination — always shown when there's more than 1 page */}
+        {pagination && pagination.totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={pagination.totalPages}
+            onPageChange={setPage}
+          />
+        )}
       </Container>
     </Page>
   );
