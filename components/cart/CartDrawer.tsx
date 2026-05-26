@@ -252,6 +252,8 @@ export const CartDrawer = () => {
       status: "sent",
       paymentMethod: "whatsapp",
     });
+    clearCart();
+    setIsCartOpen(false);
     window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
   };
 

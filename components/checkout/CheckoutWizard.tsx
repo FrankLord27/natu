@@ -8,7 +8,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Loader } from "@/components/ui/Loader";
-import { Check, ChevronRight, CreditCard, Home, User } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  CreditCard,
+  Home,
+  User,
+  PackageCheck,
+} from "lucide-react";
+import { toast } from "sonner";
+import Link from "next/link";
 
 const WizardContainer = styled.div`
   max-width: 800px;
@@ -171,9 +180,10 @@ const ShippingSchema = z.object({
 export default function CheckoutWizard() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<any>({});
-  const { cart, totalPrice: total } = useCart();
+  const { cart, totalPrice: total, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [cartToken, setCartToken] = useState<string | null>(null);
+  const [orderId, setOrderId] = useState<string | null>(null);
 
   // Initialize cartToken
   useEffect(() => {
@@ -222,14 +232,42 @@ export default function CheckoutWizard() {
 
   const handleFinalSubmit = async () => {
     setIsProcessing(true);
-    // Simulate processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          notes: formData.notes,
+          items: cart.map((item) => ({
+            id: item.id,
+            quantity: item.quantity,
+            price: item.price,
+          })),
+          total,
+        }),
+      });
 
-    // Here we would call the actual server action
-    // await processOrder({ ...formData, cart });
+      const data = await res.json();
 
-    alert("¡Pedido procesado con éxito!");
-    setIsProcessing(false);
+      if (!res.ok) {
+        toast.error(data.error || "Error al procesar el pedido");
+        return;
+      }
+
+      setOrderId(data.orderId);
+      clearCart();
+      setStep(4);
+    } catch {
+      toast.error("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (cart.length === 0) {
@@ -247,16 +285,18 @@ export default function CheckoutWizard() {
 
   return (
     <WizardContainer>
-      <Steps>
-        {[1, 2, 3].map((i) => (
-          <Step key={i} $active={step === i} $completed={step > i}>
-            <div className="circle">{step > i ? <Check size={16} /> : i}</div>
-            <div className="label">
-              {i === 1 ? "Datos" : i === 2 ? "Envío" : "Pago"}
-            </div>
-          </Step>
-        ))}
-      </Steps>
+      {step < 4 && (
+        <Steps>
+          {[1, 2, 3].map((i) => (
+            <Step key={i} $active={step === i} $completed={step > i}>
+              <div className="circle">{step > i ? <Check size={16} /> : i}</div>
+              <div className="label">
+                {i === 1 ? "Datos" : i === 2 ? "Envío" : "Confirmar"}
+              </div>
+            </Step>
+          ))}
+        </Steps>
+      )}
 
       <AnimatePresence mode="wait">
         {step === 1 && (
@@ -456,6 +496,94 @@ export default function CheckoutWizard() {
                 )}
               </Button>
             </ButtonRow>
+          </StepContent>
+        )}
+
+        {step === 4 && orderId && (
+          <StepContent
+            key="step4"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+          >
+            <div style={{ textAlign: "center", padding: "20px 0 10px" }}>
+              <div
+                style={{
+                  width: 72,
+                  height: 72,
+                  borderRadius: "50%",
+                  background: "#e8f5e9",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 20px",
+                }}
+              >
+                <PackageCheck size={36} color="#2e7d32" />
+              </div>
+              <h2
+                style={{ fontWeight: 900, fontSize: "1.8rem", marginBottom: 8 }}
+              >
+                ¡Pedido Recibido!
+              </h2>
+              <p style={{ color: "#666", marginBottom: 6 }}>
+                Tu pedido fue registrado correctamente.
+              </p>
+              <p
+                style={{
+                  fontWeight: 800,
+                  fontSize: "1.1rem",
+                  color: "#1a1a1a",
+                  marginBottom: 24,
+                }}
+              >
+                N.° de orden:{" "}
+                <span style={{ color: "#7BB32E" }}>
+                  #{orderId.slice(-8).toUpperCase()}
+                </span>
+              </p>
+              <p
+                style={{
+                  fontSize: "0.88rem",
+                  color: "#888",
+                  maxWidth: 400,
+                  margin: "0 auto 30px",
+                  lineHeight: 1.6,
+                }}
+              >
+                Nos pondremos en contacto a <strong>{formData.email}</strong>{" "}
+                para confirmar los detalles de pago y envío.
+              </p>
+              <div
+                style={{ display: "flex", gap: 12, justifyContent: "center" }}
+              >
+                <Link
+                  href="/tienda"
+                  style={{
+                    padding: "12px 24px",
+                    borderRadius: 12,
+                    background: "#7BB32E",
+                    color: "white",
+                    fontWeight: 800,
+                    textDecoration: "none",
+                  }}
+                >
+                  Seguir comprando
+                </Link>
+                <Link
+                  href="/mi-cuenta/pedidos"
+                  style={{
+                    padding: "12px 24px",
+                    borderRadius: 12,
+                    background: "#f5f5f5",
+                    color: "#333",
+                    fontWeight: 700,
+                    textDecoration: "none",
+                  }}
+                >
+                  Mis pedidos
+                </Link>
+              </div>
+            </div>
           </StepContent>
         )}
       </AnimatePresence>
