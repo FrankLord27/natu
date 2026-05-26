@@ -6,12 +6,23 @@ import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import SafeImage from "@/components/SafeImage";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Search, Edit, Trash2, Eye, EyeOff, Package } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Eye,
+  EyeOff,
+  Package,
+  LayoutGrid,
+  List,
+} from "lucide-react";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { getAdminProducts } from "@/lib/actions";
 import { ProductGridSkeleton } from "@/components/admin/SkeletonLoaders";
+import { toast } from "sonner";
 
 const Page = styled.div``;
 const Header = styled.div`
@@ -254,6 +265,130 @@ const Empty = styled.div`
   }
 `;
 
+const ViewToggle = styled.div`
+  display: flex;
+  background: #f0f0f0;
+  border-radius: 10px;
+  padding: 4px;
+  gap: 2px;
+`;
+
+const ToggleBtn = styled.button<{ $active: boolean }>`
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: ${(p) => (p.$active ? "white" : "transparent")};
+  color: ${(p) => (p.$active ? "#333" : "#999")};
+  box-shadow: ${(p) => (p.$active ? "0 1px 4px rgba(0,0,0,0.1)" : "none")};
+  transition: all 0.2s;
+`;
+
+const MosaicGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 20px;
+`;
+
+const ProductCard = styled(motion.div)`
+  background: white;
+  border-radius: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+  display: flex;
+  flex-direction: column;
+`;
+
+const CardImg = styled.div`
+  width: 100%;
+  aspect-ratio: 1;
+  background: #f5f5f5;
+  position: relative;
+  overflow: hidden;
+`;
+
+const CardBody = styled.div`
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+`;
+
+const CardName = styled.div`
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+const CardCategory = styled.div`
+  font-size: 0.75rem;
+  color: #999;
+  font-weight: 600;
+`;
+
+const CardFooter = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+`;
+
+const CardPrice = styled.div`
+  font-weight: 900;
+  font-size: 1.05rem;
+  color: ${(p) => p.theme.colors.primary};
+`;
+
+const StockPill = styled.button<{ $level: "ok" | "low" | "out" }>`
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: ${(p) =>
+    p.$level === "ok" ? "#e8f5e9" : p.$level === "low" ? "#fff8e1" : "#ffebee"};
+  color: ${(p) =>
+    p.$level === "ok" ? "#2e7d32" : p.$level === "low" ? "#f57f17" : "#c62828"};
+  &:hover {
+    filter: brightness(0.95);
+  }
+`;
+
+const CardActions = styled.div`
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  border-top: 1px solid #f5f5f5;
+  padding-top: 10px;
+`;
+
+const CardActionBtn = styled.button<{ $danger?: boolean }>`
+  flex: 1;
+  padding: 7px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  transition: all 0.2s;
+  background: ${(p) => (p.$danger ? "#fff0f0" : "#f5f5f5")};
+  color: ${(p) => (p.$danger ? "#c62828" : "#555")};
+  &:hover {
+    background: ${(p) => (p.$danger ? "#ffebee" : "#ebebeb")};
+  }
+`;
+
 interface ProductData {
   id?: string;
   name: string;
@@ -297,6 +432,14 @@ export default function AdminProductos() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [limit, setLimit] = useState(10);
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
+  const [stockAdjust, setStockAdjust] = useState<{
+    id: string;
+    name: string;
+    current: number;
+    value: string;
+  } | null>(null);
+  const [savingStock, setSavingStock] = useState(false);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -368,11 +511,10 @@ export default function AdminProductos() {
         await fetchProducts();
       } else {
         const data = await res.json();
-        alert(`Error al guardar: ${data.error || "Error desconocido"}`);
+        toast.error(`Error al guardar: ${data.error || "Error desconocido"}`);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error de red al intentar guardar");
+    } catch {
+      toast.error("Error de red al intentar guardar");
     } finally {
       setSaving(false);
     }
@@ -386,11 +528,12 @@ export default function AdminProductos() {
           await fetchProducts();
         } else {
           const data = await res.json();
-          alert(`Error al eliminar: ${data.error || "Error desconocido"}`);
+          toast.error(
+            `Error al eliminar: ${data.error || "Error desconocido"}`,
+          );
         }
-      } catch (err) {
-        console.error(err);
-        alert("Error de red al intentar eliminar");
+      } catch {
+        toast.error("Error de red al intentar eliminar");
       }
     }
   };
@@ -406,23 +549,71 @@ export default function AdminProductos() {
         await fetchProducts();
       } else {
         const data = await res.json();
-        alert(
+        toast.error(
           `Error al cambiar visibilidad: ${data.error || "Error desconocido"}`,
         );
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error de red al intentar cambiar visibilidad");
+    } catch {
+      toast.error("Error de red al intentar cambiar visibilidad");
     }
   };
+
+  const handleQuickStock = async () => {
+    if (!stockAdjust) return;
+    const newStock = parseInt(stockAdjust.value);
+    if (isNaN(newStock) || newStock < 0) {
+      toast.error("Ingresa un número válido mayor o igual a 0");
+      return;
+    }
+    setSavingStock(true);
+    try {
+      const res = await fetch(`/api/products/${stockAdjust.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock: newStock }),
+      });
+      if (res.ok) {
+        toast.success("Stock actualizado");
+        setStockAdjust(null);
+        await fetchProducts();
+      } else {
+        toast.error("Error al actualizar el stock");
+      }
+    } catch {
+      toast.error("Error de conexión");
+    } finally {
+      setSavingStock(false);
+    }
+  };
+
+  const stockLevel = (stock: number, min = 5) =>
+    stock === 0 ? "out" : stock <= min ? "low" : "ok";
 
   return (
     <Page>
       <Header>
         <h1>Productos</h1>
-        <AddBtn onClick={openCreate}>
-          <Plus size={18} /> Nuevo Producto
-        </AddBtn>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <ViewToggle>
+            <ToggleBtn
+              $active={viewMode === "list"}
+              onClick={() => setViewMode("list")}
+              title="Vista lista"
+            >
+              <List size={16} />
+            </ToggleBtn>
+            <ToggleBtn
+              $active={viewMode === "grid"}
+              onClick={() => setViewMode("grid")}
+              title="Vista mosaico"
+            >
+              <LayoutGrid size={16} />
+            </ToggleBtn>
+          </ViewToggle>
+          <AddBtn onClick={openCreate}>
+            <Plus size={18} /> Nuevo Producto
+          </AddBtn>
+        </div>
       </Header>
 
       <SearchBar>
@@ -463,74 +654,185 @@ export default function AdminProductos() {
         />
       </div>
 
-      <Table>
-        <TableHead>
-          <span>Imagen</span>
-          <span>Producto</span>
-          <span>Categoría</span>
-          <span>Precio</span>
-          <span>Estado</span>
-          <span>Acciones</span>
-        </TableHead>
-        {loading ? (
-          <ProductGridSkeleton rows={8} />
-        ) : (
-          <>
-            {products.length === 0 ? (
-              <Empty>
-                <Package size={50} strokeWidth={1} />
-                <p>No hay productos</p>
-              </Empty>
-            ) : (
-              products.map((p: any) => (
-                <TableRow key={p.id}>
-                  <ProductImg>
-                    {p.imageUrls?.[0] && (
-                      <SafeImage
-                        src={p.imageUrls[0]}
-                        alt={p.name}
-                        fill
-                        style={{ objectFit: "cover" }}
-                        sizes="50px"
-                      />
-                    )}
-                  </ProductImg>
-                  <ProductName>
-                    <h4>{p.name}</h4>
-                    <span>Stock: {p.stock}</span>
-                  </ProductName>
-                  <span style={{ fontSize: "0.9rem", color: "#666" }}>
-                    {p.category?.name || "—"}
-                  </span>
-                  <span style={{ fontWeight: 800, color: "#7BB32E" }}>
-                    ${(p.price || 0).toFixed(2)}
-                  </span>
-                  <StatusBadge $active={p.isActive}>
-                    {p.isActive ? "Activo" : "Inactivo"}
-                  </StatusBadge>
-                  <ActionBtns>
-                    <ActionIcon
-                      onClick={() => toggleVisibility(p.id, p.isActive)}
-                      title={p.isActive ? "Ocultar" : "Mostrar"}
+      {viewMode === "list" ? (
+        <Table>
+          <TableHead>
+            <span>Imagen</span>
+            <span>Producto</span>
+            <span>Categoría</span>
+            <span>Precio</span>
+            <span>Estado</span>
+            <span>Acciones</span>
+          </TableHead>
+          {loading ? (
+            <ProductGridSkeleton rows={8} />
+          ) : products.length === 0 ? (
+            <Empty>
+              <Package size={50} strokeWidth={1} />
+              <p>No hay productos</p>
+            </Empty>
+          ) : (
+            products.map((p: any) => (
+              <TableRow key={p.id}>
+                <ProductImg>
+                  {p.imageUrls?.[0] && (
+                    <SafeImage
+                      src={p.imageUrls[0]}
+                      alt={p.name}
+                      fill
+                      style={{ objectFit: "cover" }}
+                      sizes="50px"
+                    />
+                  )}
+                </ProductImg>
+                <ProductName>
+                  <h4>{p.name}</h4>
+                  <span>
+                    Stock:{" "}
+                    <StockPill
+                      $level={stockLevel(p.stock, p.minStockLevel)}
+                      onClick={() =>
+                        setStockAdjust({
+                          id: p.id,
+                          name: p.name,
+                          current: p.stock,
+                          value: String(p.stock),
+                        })
+                      }
                     >
-                      {p.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </ActionIcon>
-                    <ActionIcon onClick={() => openEdit(p)}>
-                      <Edit size={16} />
-                    </ActionIcon>
-                    <ActionIcon
-                      onClick={() => handleDelete(p.id)}
-                      style={{ color: "#ff5252" }}
+                      {p.stock}
+                    </StockPill>
+                  </span>
+                </ProductName>
+                <span style={{ fontSize: "0.9rem", color: "#666" }}>
+                  {p.category?.name || "—"}
+                </span>
+                <span style={{ fontWeight: 800, color: "#7BB32E" }}>
+                  ${(p.price || 0).toFixed(2)}
+                </span>
+                <StatusBadge $active={p.isActive}>
+                  {p.isActive ? "Activo" : "Inactivo"}
+                </StatusBadge>
+                <ActionBtns>
+                  <ActionIcon
+                    onClick={() => toggleVisibility(p.id, p.isActive)}
+                    title={p.isActive ? "Ocultar" : "Mostrar"}
+                  >
+                    {p.isActive ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </ActionIcon>
+                  <ActionIcon onClick={() => openEdit(p)}>
+                    <Edit size={16} />
+                  </ActionIcon>
+                  <ActionIcon
+                    onClick={() => handleDelete(p.id)}
+                    style={{ color: "#ff5252" }}
+                  >
+                    <Trash2 size={16} />
+                  </ActionIcon>
+                </ActionBtns>
+              </TableRow>
+            ))
+          )}
+        </Table>
+      ) : loading ? (
+        <ProductGridSkeleton rows={8} />
+      ) : products.length === 0 ? (
+        <Empty>
+          <Package size={50} strokeWidth={1} />
+          <p>No hay productos</p>
+        </Empty>
+      ) : (
+        <MosaicGrid>
+          {products.map((p: any) => (
+            <ProductCard
+              key={p.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -4 }}
+            >
+              <CardImg>
+                {p.imageUrls?.[0] ? (
+                  <SafeImage
+                    src={p.imageUrls[0]}
+                    alt={p.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="220px"
+                  />
+                ) : (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "100%",
+                      color: "#ccc",
+                    }}
+                  >
+                    <Package size={40} strokeWidth={1} />
+                  </div>
+                )}
+                {!p.isActive && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "rgba(0,0,0,0.35)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        background: "#ff5252",
+                        color: "white",
+                        padding: "4px 10px",
+                        borderRadius: 20,
+                        fontSize: "0.7rem",
+                        fontWeight: 800,
+                      }}
                     >
-                      <Trash2 size={16} />
-                    </ActionIcon>
-                  </ActionBtns>
-                </TableRow>
-              ))
-            )}
-          </>
-        )}
-      </Table>
+                      INACTIVO
+                    </span>
+                  </div>
+                )}
+              </CardImg>
+              <CardBody>
+                <CardName title={p.name}>{p.name}</CardName>
+                <CardCategory>
+                  {p.category?.name || "Sin categoría"}
+                </CardCategory>
+                <CardFooter>
+                  <CardPrice>${(p.price || 0).toFixed(2)}</CardPrice>
+                  <StockPill
+                    $level={stockLevel(p.stock, p.minStockLevel)}
+                    onClick={() =>
+                      setStockAdjust({
+                        id: p.id,
+                        name: p.name,
+                        current: p.stock,
+                        value: String(p.stock),
+                      })
+                    }
+                    title="Ajustar stock"
+                  >
+                    Stock: {p.stock}
+                  </StockPill>
+                </CardFooter>
+                <CardActions>
+                  <CardActionBtn onClick={() => openEdit(p)}>
+                    <Edit size={13} /> Editar
+                  </CardActionBtn>
+                  <CardActionBtn $danger onClick={() => handleDelete(p.id)}>
+                    <Trash2 size={13} /> Eliminar
+                  </CardActionBtn>
+                </CardActions>
+              </CardBody>
+            </ProductCard>
+          ))}
+        </MosaicGrid>
+      )}
 
       <Pagination
         currentPage={page}
@@ -810,6 +1112,88 @@ export default function AdminProductos() {
                 </SaveBtn>
               </ModalActions>
             </ModalContent>
+          </ModalOverlay>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {stockAdjust && (
+          <ModalOverlay
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setStockAdjust(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: "white",
+                borderRadius: 20,
+                padding: 30,
+                width: "100%",
+                maxWidth: 380,
+              }}
+            >
+              <h3
+                style={{
+                  fontWeight: 900,
+                  marginBottom: 6,
+                  fontSize: "1.2rem",
+                }}
+              >
+                Ajustar Stock
+              </h3>
+              <p
+                style={{
+                  color: "#666",
+                  fontSize: "0.88rem",
+                  marginBottom: 20,
+                }}
+              >
+                {stockAdjust.name}
+              </p>
+              <div
+                style={{
+                  background: "#f9f9f9",
+                  borderRadius: 12,
+                  padding: "12px 16px",
+                  marginBottom: 20,
+                  fontSize: "0.88rem",
+                  color: "#666",
+                  fontWeight: 600,
+                }}
+              >
+                Stock actual:{" "}
+                <strong style={{ color: "#1a1a1a" }}>
+                  {stockAdjust.current}
+                </strong>
+              </div>
+              <LabelStyled>Nuevo stock</LabelStyled>
+              <Input
+                type="number"
+                min="0"
+                value={stockAdjust.value}
+                onChange={(e) =>
+                  setStockAdjust({ ...stockAdjust, value: e.target.value })
+                }
+                autoFocus
+                onKeyDown={(e) => e.key === "Enter" && handleQuickStock()}
+              />
+              <ModalActions>
+                <CancelBtn onClick={() => setStockAdjust(null)}>
+                  Cancelar
+                </CancelBtn>
+                <SaveBtn
+                  onClick={handleQuickStock}
+                  disabled={savingStock || stockAdjust.value === ""}
+                >
+                  {savingStock ? "Guardando..." : "Guardar"}
+                </SaveBtn>
+              </ModalActions>
+            </motion.div>
           </ModalOverlay>
         )}
       </AnimatePresence>

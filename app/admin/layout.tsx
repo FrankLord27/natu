@@ -174,11 +174,6 @@ const navItems = [
         label: "Pedidos",
       },
       {
-        href: "/admin/inventario",
-        icon: <BarChart3 size={18} />,
-        label: "Inventario",
-      },
-      {
         href: "/admin/facturacion",
         icon: <FileText size={18} />,
         label: "Facturación",
