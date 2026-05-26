@@ -31,12 +31,12 @@ export function Accordion({ children }: { children: React.ReactNode }) {
 }
 
 // Sub-componente Item
-function AccordionItem({ 
-  index, 
-  children 
-}: { 
+function AccordionItem({
+  index,
+  children
+}: {
   index: number
-  children: React.ReactNode 
+  children: React.ReactNode
 }) {
   const { openIndex } = useContext(AccordionContext)
   const isOpen = openIndex === index
@@ -49,18 +49,18 @@ function AccordionItem({
 }
 
 // Sub-componente Header
-function AccordionHeader({ 
-  index, 
-  children 
-}: { 
+function AccordionHeader({
+  index,
+  children
+}: {
   index: number
-  children: React.ReactNode 
+  children: React.ReactNode
 }) {
   const { openIndex, setOpenIndex } = useContext(AccordionContext)
   const isOpen = openIndex === index
 
   return (
-    <Header 
+    <Header
       onClick={() => setOpenIndex(isOpen ? null : index)}
       $isOpen={isOpen}
     >
@@ -71,12 +71,12 @@ function AccordionHeader({
 }
 
 // Sub-componente Content
-function AccordionContent({ 
-  index, 
-  children 
-}: { 
+function AccordionContent({
+  index,
+  children
+}: {
   index: number
-  children: React.ReactNode 
+  children: React.ReactNode
 }) {
   const { openIndex } = useContext(AccordionContext)
   const isOpen = openIndex === index
@@ -113,7 +113,7 @@ const Header = styled.button<{ $isOpen: boolean }>`
   justify-content: space-between;
   align-items: center;
   text-align: left;
-  
+
   &:hover {
     background: #f5f5f5;
   }
@@ -292,7 +292,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
       const existingItem = state.items.find(i => i.id === action.payload.id)
-      
+
       if (existingItem) {
         return {
           ...state,
@@ -377,9 +377,9 @@ function Cart() {
   return (
     <div>
       {state.items.map(item => (
-        <CartItem 
-          key={item.id} 
-          item={item} 
+        <CartItem
+          key={item.id}
+          item={item}
           onRemove={() => removeItem(item.id)}
         />
       ))}
@@ -423,16 +423,16 @@ export function useCartActions() {
   const { dispatch } = useCart()
 
   return {
-    addItem: (item: CartItem) => 
+    addItem: (item: CartItem) =>
       dispatch({ type: 'ADD_ITEM', payload: item }),
-    
-    removeItem: (id: string) => 
+
+    removeItem: (id: string) =>
       dispatch({ type: 'REMOVE_ITEM', payload: id }),
-    
+
     updateQuantity: (id: string, quantity: number) =>
       dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }),
-    
-    clearCart: () => 
+
+    clearCart: () =>
       dispatch({ type: 'CLEAR_CART' })
   }
 }
@@ -449,7 +449,7 @@ function App() {
 
 function ProductPage() {
   const { addItem } = useCartActions()
-  
+
   return (
     <button onClick={() => addItem(product)}>
       Add to Cart
@@ -460,7 +460,7 @@ function ProductPage() {
 function Cart() {
   const { state } = useCart()
   const { removeItem } = useCartActions()
-  
+
   return (
     <div>
       {state.items.map(item => (
@@ -579,7 +579,7 @@ export function useMediaQuery(query: string): boolean {
 
   useEffect(() => {
     const media = window.matchMedia(query)
-    
+
     if (media.matches !== matches) {
       setMatches(media.matches)
     }
@@ -612,63 +612,65 @@ function Navigation() {
 export const theme = {
   colors: {
     primary: {
-      main: '#2E7D32',
-      light: '#4CAF50',
-      dark: '#1B5E20',
-      contrast: '#FFFFFF'
+      main: "#2E7D32",
+      light: "#4CAF50",
+      dark: "#1B5E20",
+      contrast: "#FFFFFF",
     },
     secondary: {
-      main: '#FFA000',
-      light: '#FFB333',
-      dark: '#CC8000',
-      contrast: '#000000'
+      main: "#FFA000",
+      light: "#FFB333",
+      dark: "#CC8000",
+      contrast: "#000000",
     },
     error: {
-      main: '#D32F2F',
-      light: '#E57373',
-      dark: '#C62828',
-      contrast: '#FFFFFF'
-    }
+      main: "#D32F2F",
+      light: "#E57373",
+      dark: "#C62828",
+      contrast: "#FFFFFF",
+    },
   },
   spacing: (multiplier: number) => `${multiplier * 8}px`,
   radius: {
-    sm: '4px',
-    md: '8px',
-    lg: '12px',
-    xl: '16px',
-    round: '9999px'
+    sm: "4px",
+    md: "8px",
+    lg: "12px",
+    xl: "16px",
+    round: "9999px",
   },
   shadows: {
-    sm: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    md: '0 4px 8px rgba(0, 0, 0, 0.15)',
-    lg: '0 8px 16px rgba(0, 0, 0, 0.2)',
-    xl: '0 12px 24px rgba(0, 0, 0, 0.25)'
+    sm: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    md: "0 4px 8px rgba(0, 0, 0, 0.15)",
+    lg: "0 8px 16px rgba(0, 0, 0, 0.2)",
+    xl: "0 12px 24px rgba(0, 0, 0, 0.25)",
   },
   transitions: {
-    fast: '150ms ease',
-    normal: '250ms ease',
-    slow: '350ms ease'
+    fast: "150ms ease",
+    normal: "250ms ease",
+    slow: "350ms ease",
   },
   breakpoints: {
-    mobile: '480px',
-    tablet: '768px',
-    desktop: '1024px',
-    wide: '1280px'
-  }
-}
+    mobile: "480px",
+    tablet: "768px",
+    desktop: "1024px",
+    wide: "1280px",
+  },
+};
 
 // USO: Button con variants
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
-  padding: ${props => props.theme.spacing(1.5)} ${props => props.theme.spacing(3)};
-  border-radius: ${props => props.theme.radius.md};
-  transition: all ${props => props.theme.transitions.normal};
+const Button = styled.button<{ variant?: "primary" | "secondary" }>`
+  padding: ${(props) => props.theme.spacing(1.5)}
+    ${(props) => props.theme.spacing(3)};
+  border-radius: ${(props) => props.theme.radius.md};
+  transition: all ${(props) => props.theme.transitions.normal};
   border: none;
   cursor: pointer;
 
-  ${props => {
-    const color = props.variant === 'secondary' 
-      ? props.theme.colors.secondary 
-      : props.theme.colors.primary
+  ${(props) => {
+    const color =
+      props.variant === "secondary"
+        ? props.theme.colors.secondary
+        : props.theme.colors.primary;
 
     return `
       background: ${color.main};
@@ -681,51 +683,51 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
       &:active {
         background: ${color.light};
       }
-    `
+    `;
   }}
-`
+`;
 ```
 
 ### 2. Responsive Mixins
 
 ```typescript
 // styles/mixins.ts
-import { css } from 'styled-components'
+import { css } from "styled-components";
 
 export const respondTo = {
   mobile: (content: string) => css`
-    @media (max-width: ${props => props.theme.breakpoints.mobile}) {
+    @media (max-width: ${(props) => props.theme.breakpoints.mobile}) {
       ${content}
     }
   `,
   tablet: (content: string) => css`
-    @media (max-width: ${props => props.theme.breakpoints.tablet}) {
+    @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
       ${content}
     }
   `,
   desktop: (content: string) => css`
-    @media (min-width: ${props => props.theme.breakpoints.desktop}) {
+    @media (min-width: ${(props) => props.theme.breakpoints.desktop}) {
       ${content}
     }
-  `
-}
+  `,
+};
 
 // USO:
 const Container = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: ${props => props.theme.spacing(3)};
+  gap: ${(props) => props.theme.spacing(3)};
 
   ${respondTo.tablet(css`
     grid-template-columns: repeat(2, 1fr);
-    gap: ${props => props.theme.spacing(2)};
+    gap: ${(props) => props.theme.spacing(2)};
   `)}
 
   ${respondTo.mobile(css`
     grid-template-columns: 1fr;
-    gap: ${props => props.theme.spacing(1)};
+    gap: ${(props) => props.theme.spacing(1)};
   `)}
-`
+`;
 ```
 
 ---
@@ -778,45 +780,42 @@ function CommentForm() {
 ```typescript
 // utils/rateLimit.ts
 interface RateLimitEntry {
-  count: number
-  resetTime: number
+  count: number;
+  resetTime: number;
 }
 
-const rateLimitMap = new Map<string, RateLimitEntry>()
+const rateLimitMap = new Map<string, RateLimitEntry>();
 
 export function rateLimit(
   identifier: string,
   maxRequests: number = 10,
-  windowMs: number = 60000
+  windowMs: number = 60000,
 ): boolean {
-  const now = Date.now()
-  const entry = rateLimitMap.get(identifier)
+  const now = Date.now();
+  const entry = rateLimitMap.get(identifier);
 
   if (!entry || now > entry.resetTime) {
     rateLimitMap.set(identifier, {
       count: 1,
-      resetTime: now + windowMs
-    })
-    return true
+      resetTime: now + windowMs,
+    });
+    return true;
   }
 
   if (entry.count >= maxRequests) {
-    return false
+    return false;
   }
 
-  entry.count++
-  return true
+  entry.count++;
+  return true;
 }
 
 // USO en API route:
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for') || 'unknown'
+  const ip = request.headers.get("x-forwarded-for") || "unknown";
 
   if (!rateLimit(ip, 5, 60000)) {
-    return Response.json(
-      { error: 'Too many requests' },
-      { status: 429 }
-    )
+    return Response.json({ error: "Too many requests" }, { status: 429 });
   }
 
   // Process request...
@@ -831,10 +830,10 @@ export async function POST(request: Request) {
 
 ```typescript
 // Memoize expensive calculations
-const ExpensiveComponent = memo(function ExpensiveComponent({ 
-  data 
-}: { 
-  data: ComplexData 
+const ExpensiveComponent = memo(function ExpensiveComponent({
+  data
+}: {
+  data: ComplexData
 }) {
   const processedData = useMemo(() => {
     // Heavy calculation

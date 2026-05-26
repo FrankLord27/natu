@@ -576,6 +576,7 @@ Saludos,
 ## Tips de Comunicación
 
 ### ✅ DO:
+
 - Sé claro y conciso
 - Usa emojis para hacer más amigable (pero no exageres)
 - Incluye screenshots/links cuando sea relevante
@@ -584,6 +585,7 @@ Saludos,
 - Responde en máximo 24 horas
 
 ### ❌ DON'T:
+
 - No uses jerga técnica excesiva
 - No prometas fechas que no puedes cumplir
 - No desaparezcas sin avisar
@@ -593,12 +595,14 @@ Saludos,
 ### 📞 Frecuencia de Comunicación:
 
 **Durante desarrollo activo:**
+
 - Update cada 2-3 días mínimo
 - Después de cada fase completada
 - Cuando necesites algo del cliente
 - Ante cualquier bloqueador
 
 **Post-lanzamiento:**
+
 - Primera semana: diario
 - Primer mes: semanal
 - Después: mensual
