@@ -11,6 +11,7 @@ import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 import { CustomDropdown } from "@/components/ui/CustomDropdown";
 import { getAdminProducts } from "@/lib/actions";
+import { ProductGridSkeleton } from "@/components/admin/SkeletonLoaders";
 
 const Page = styled.div``;
 const Header = styled.div`
@@ -472,9 +473,7 @@ export default function AdminProductos() {
           <span>Acciones</span>
         </TableHead>
         {loading ? (
-          <p style={{ padding: 40, textAlign: "center" }}>
-            Cargando productos...
-          </p>
+          <ProductGridSkeleton rows={8} />
         ) : (
           <>
             {products.length === 0 ? (

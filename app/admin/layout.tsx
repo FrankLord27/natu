@@ -183,11 +183,6 @@ const navItems = [
         icon: <FileText size={18} />,
         label: "Facturación",
       },
-      {
-        href: "/admin/ventas-manuales",
-        icon: <DollarSign size={18} />,
-        label: "Caja (Tienda)",
-      },
     ],
   },
   {
@@ -234,8 +229,6 @@ const navItems = [
     ],
   },
 ];
-
-import { DollarSign } from "lucide-react";
 
 interface NavGroupProps {
   group: {

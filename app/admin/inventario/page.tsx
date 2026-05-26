@@ -6,12 +6,8 @@ import {
   Package,
   AlertTriangle,
   TrendingDown,
-  Search,
-  Filter,
   Plus,
   Minus,
-  History,
-  Save,
   X,
   ArrowRight,
 } from "lucide-react";
@@ -22,6 +18,7 @@ import {
   getAdminProducts,
 } from "@/lib/actions";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const Page = styled.div`
   padding: 30px;
@@ -315,7 +312,7 @@ export default function InventoryDashboard() {
         : selectedProduct.stock - Number(adjustment.quantity);
 
     if (newStock < 0) {
-      alert("El stock no puede ser negativo.");
+      toast.error("El stock no puede ser negativo.");
       return;
     }
 
@@ -326,11 +323,12 @@ export default function InventoryDashboard() {
       adjustment.notes,
     );
     if (res.success) {
+      toast.success("Inventario actualizado correctamente");
       setSelectedProduct(null);
-      fetchData(); // Refresh data
+      fetchData();
       router.refresh();
     } else {
-      alert("Error al actualizar inventario");
+      toast.error("Error al actualizar inventario");
     }
   };
 
@@ -401,46 +399,57 @@ export default function InventoryDashboard() {
         </>
       )}
 
-      <SectionTitle>Inventario General</SectionTitle>
-      <TableCard>
-        <Table>
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>SKU</th>
-              <th>Categoría</th>
-              <th>Estado</th>
-              <th>Stock</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
+      <SectionTitle>
+        <ArrowRight size={20} /> Ajuste Manual de Stock
+      </SectionTitle>
+      <div
+        style={{
+          background: "white",
+          borderRadius: 16,
+          padding: "25px 30px",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
+          marginBottom: 30,
+        }}
+      >
+        <p style={{ fontSize: "0.9rem", color: "#666", marginBottom: 15 }}>
+          Selecciona cualquier producto para registrar un movimiento de
+          inventario. Para gestionar el catálogo completo ve a{" "}
+          <a
+            href="/admin/productos"
+            style={{ color: "#7BB32E", fontWeight: 700 }}
+          >
+            Productos
+          </a>
+          .
+        </p>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <select
+            defaultValue=""
+            onChange={(e) => {
+              const product = allProducts.find((p) => p.id === e.target.value);
+              if (product) handleAdjustClick(product);
+            }}
+            style={{
+              flex: 1,
+              padding: "12px 16px",
+              borderRadius: 12,
+              border: "2px solid #eee",
+              fontSize: "0.95rem",
+              background: "white",
+            }}
+          >
+            <option value="" disabled>
+              Seleccionar producto...
+            </option>
             {allProducts.map((p) => (
-              <tr key={p.id}>
-                <td>{p.name}</td>
-                <td>
-                  <BrandBadge>{p.sku || "N/A"}</BrandBadge>
-                </td>
-                <td>{p.category.name}</td>
-                <td>{p.isActive ? "Activo" : "Inactivo"}</td>
-                <td>
-                  <StockBadge $level={p.stock} $min={p.minStockLevel || 5}>
-                    {p.stock}
-                  </StockBadge>
-                </td>
-                <td>
-                  <ActionBtn
-                    onClick={() => handleAdjustClick(p)}
-                    title="Ajustar Stock"
-                  >
-                    <History size={18} />
-                  </ActionBtn>
-                </td>
-              </tr>
+              <option key={p.id} value={p.id}>
+                {p.name} — Stock: {p.stock}{" "}
+                {p.stock <= (p.minStockLevel || 5) ? "⚠️" : ""}
+              </option>
             ))}
-          </tbody>
-        </Table>
-      </TableCard>
+          </select>
+        </div>
+      </div>
 
       <AnimatePresence>
         {selectedProduct && (

@@ -7,10 +7,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 import styled from "styled-components";
-import { Search, Eye, Package, TrendingUp, FileText } from "lucide-react";
+import { Search, Eye, Package, TrendingUp, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import NextDynamic from "next/dynamic";
 import { Loader } from "@/components/ui/Loader";
+import { TableBodySkeleton } from "@/components/admin/SkeletonLoaders";
+import { toast } from "sonner";
 
 const InvoiceView = NextDynamic(
   () => import("@/components/admin/InvoiceView").then((mod) => mod.InvoiceView),
@@ -219,11 +221,25 @@ const EmptyState = styled.div`
   }
 `;
 
-const LoadingState = styled.div`
-  padding: 60px 20px;
-  text-align: center;
-  color: #999;
-  font-size: 1.1rem;
+const FilterTabs = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+`;
+
+const FilterTab = styled.button<{ $active: boolean }>`
+  padding: 8px 20px;
+  border-radius: 20px;
+  border: 2px solid ${(p) => (p.$active ? p.theme.colors.primary : "#e0e0e0")};
+  background: ${(p) => (p.$active ? p.theme.colors.primaryPale : "white")};
+  color: ${(p) => (p.$active ? p.theme.colors.primary : "#666")};
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  &:hover {
+    border-color: ${(p) => p.theme.colors.primary};
+  }
 `;
 
 interface Order {
@@ -248,6 +264,9 @@ export default function AdminPedidos() {
   const [loading, setLoading] = useState(true);
   const { page, goToPage } = usePagination(1, 10);
   const [searchTerm, setSearchTerm] = useState("");
+  const [typeFilter, setTypeFilter] = useState<"all" | "online" | "manual">(
+    "all",
+  );
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -267,8 +286,8 @@ export default function AdminPedidos() {
         setPagination(data.pagination);
         calculateStats(data.orders);
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
+      toast.error("Error al cargar pedidos");
     } finally {
       setLoading(false);
     }
@@ -292,33 +311,39 @@ export default function AdminPedidos() {
     const orderNum = (o.orderNumber || "").toLowerCase();
     const name = (o.user?.name || o.customerName || "").toLowerCase();
     const email = (o.user?.email || o.customerEmail || "").toLowerCase();
-
-    return (
+    const matchesSearch =
       orderNum.includes(search) ||
       name.includes(search) ||
-      email.includes(search)
-    );
+      email.includes(search);
+    const isManual = !o.user;
+    const matchesType =
+      typeFilter === "all" ||
+      (typeFilter === "online" && !isManual) ||
+      (typeFilter === "manual" && isManual);
+    return matchesSearch && matchesType;
   });
-
-  if (loading) {
-    return (
-      <Page>
-        <Header>
-          <h1>Gestión de Pedidos</h1>
-        </Header>
-        <TableCard>
-          <div style={{ padding: "60px 0" }}>
-            <Loader size={15} color="#7BB32E" />
-          </div>
-        </TableCard>
-      </Page>
-    );
-  }
 
   return (
     <Page>
       <Header>
         <h1>Gestión de Pedidos</h1>
+        <Link
+          href="/admin/ventas-manuales"
+          style={{
+            background: "#1a1a1a",
+            color: "white",
+            padding: "10px 20px",
+            borderRadius: 10,
+            fontWeight: 700,
+            fontSize: "0.9rem",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            textDecoration: "none",
+          }}
+        >
+          <Plus size={16} /> Nueva Venta
+        </Link>
       </Header>
 
       <StatsGrid>
@@ -340,6 +365,24 @@ export default function AdminPedidos() {
         </StatCard>
       </StatsGrid>
 
+      <FilterTabs>
+        {(
+          [
+            { key: "all", label: "Todos" },
+            { key: "online", label: "Online" },
+            { key: "manual", label: "Venta Manual" },
+          ] as const
+        ).map((t) => (
+          <FilterTab
+            key={t.key}
+            $active={typeFilter === t.key}
+            onClick={() => setTypeFilter(t.key)}
+          >
+            {t.label}
+          </FilterTab>
+        ))}
+      </FilterTabs>
+
       <SearchBar>
         <Search size={20} color="#999" />
         <SearchInput
@@ -351,29 +394,36 @@ export default function AdminPedidos() {
       </SearchBar>
 
       <TableCard>
-        {filteredOrders.length === 0 ? (
-          <EmptyState>
-            <Package size={50} strokeWidth={1} color="#ccc" />
-            <h3>No hay pedidos</h3>
-            <p>
-              Los pedidos aparecerán aquí cuando los clientes realicen compras
-            </p>
-          </EmptyState>
-        ) : (
-          <Table>
-            <thead>
+        <Table>
+          <thead>
+            <tr>
+              <Th>Pedido</Th>
+              <Th>Cliente</Th>
+              <Th>Fecha</Th>
+              <Th>Items</Th>
+              <Th>Total</Th>
+              <Th>Estado</Th>
+              <Th>Acciones</Th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <TableBodySkeleton rows={8} cols={7} />
+            ) : filteredOrders.length === 0 ? (
               <tr>
-                <Th>Pedido</Th>
-                <Th>Cliente</Th>
-                <Th>Fecha</Th>
-                <Th>Items</Th>
-                <Th>Total</Th>
-                <Th>Estado</Th>
-                <Th>Acciones</Th>
+                <td colSpan={7}>
+                  <EmptyState>
+                    <Package size={50} strokeWidth={1} color="#ccc" />
+                    <h3>No hay pedidos</h3>
+                    <p>
+                      Los pedidos aparecerán aquí cuando los clientes realicen
+                      compras
+                    </p>
+                  </EmptyState>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
+            ) : (
+              filteredOrders.map((order) => (
                 <Tr key={order.id}>
                   <Td>
                     <OrderNumber>#{order.orderNumber}</OrderNumber>
@@ -434,11 +484,17 @@ export default function AdminPedidos() {
                     </div>
                   </Td>
                 </Tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
+              ))
+            )}
+          </tbody>
+        </Table>
       </TableCard>
+
+      <Pagination
+        currentPage={page}
+        totalPages={pagination.totalPages}
+        onPageChange={goToPage}
+      />
 
       {selectedOrder && (
         <InvoiceView

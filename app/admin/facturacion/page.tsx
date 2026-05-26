@@ -13,6 +13,7 @@ import {
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { InvoiceListSkeleton } from "@/components/admin/SkeletonLoaders";
 
 const Page = styled.div`
   max-width: 1100px;
@@ -167,13 +168,13 @@ export default function Invoicing() {
               cursor: "pointer",
             }}
           >
-            <Plus size={18} /> Nueva Factura Manual
+            <Plus size={18} /> Nueva Venta Manual
           </button>
         </div>
       </Header>
 
       {loading ? (
-        <p>Cargando facturas...</p>
+        <InvoiceListSkeleton count={6} />
       ) : (
         <div>
           {invoices.length === 0 ? (

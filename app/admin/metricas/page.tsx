@@ -37,6 +37,10 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import {
+  MetricsStatsSkeleton,
+  SkeletonBlock,
+} from "@/components/admin/SkeletonLoaders";
 
 const Page = styled.div`
   display: flex;
@@ -176,7 +180,57 @@ export default function AdvancedMetrics() {
     }
   };
 
-  if (loading) return <div>Cargando analíticas empresariales...</div>;
+  if (loading)
+    return (
+      <Page>
+        <Header>
+          <h1>Análisis de Negocio</h1>
+        </Header>
+        <MetricsStatsSkeleton />
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 25,
+            marginBottom: 25,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              borderRadius: 24,
+              padding: 30,
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <SkeletonBlock $w="50%" $h={18} style={{ marginBottom: 25 }} />
+            <SkeletonBlock $w="100%" $h={280} $radius={12} />
+          </div>
+          <div
+            style={{
+              background: "white",
+              borderRadius: 24,
+              padding: 30,
+              border: "1px solid #f0f0f0",
+            }}
+          >
+            <SkeletonBlock $w="50%" $h={18} style={{ marginBottom: 25 }} />
+            <SkeletonBlock $w="100%" $h={280} $radius={12} />
+          </div>
+        </div>
+        <div
+          style={{
+            background: "white",
+            borderRadius: 24,
+            padding: 30,
+            border: "1px solid #f0f0f0",
+          }}
+        >
+          <SkeletonBlock $w="40%" $h={18} style={{ marginBottom: 25 }} />
+          <SkeletonBlock $w="100%" $h={220} $radius={12} />
+        </div>
+      </Page>
+    );
   if (!data) return <div>Error al cargar datos.</div>;
 
   return (

@@ -164,6 +164,8 @@ const SaveBtn = styled.button`
 `;
 
 import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { TableBodySkeleton } from "@/components/admin/SkeletonLoaders";
 
 export default function CategoriasAdmin() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -224,11 +226,10 @@ export default function CategoriasAdmin() {
         fetchCategories();
       } else {
         const data = await res.json();
-        alert(`Error al guardar: ${data.error || "Error desconocido"}`);
+        toast.error(`Error al guardar: ${data.error || "Error desconocido"}`);
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error de red al guardar la categoría");
+    } catch {
+      toast.error("Error de red al guardar la categoría");
     } finally {
       setSaving(false);
     }
@@ -250,11 +251,12 @@ export default function CategoriasAdmin() {
           fetchCategories();
         } else {
           const data = await res.json();
-          alert(`Error al eliminar: ${data.error || "Error desconocido"}`);
+          toast.error(
+            `Error al eliminar: ${data.error || "Error desconocido"}`,
+          );
         }
-      } catch (err) {
-        console.error(err);
-        alert("Error de red al intentar eliminar la categoría");
+      } catch {
+        toast.error("Error de red al intentar eliminar la categoría");
       }
     }
   };
@@ -281,11 +283,7 @@ export default function CategoriasAdmin() {
           </thead>
           <tbody>
             {loading ? (
-              <tr>
-                <Td colSpan={5} style={{ textAlign: "center", padding: 40 }}>
-                  Cargando...
-                </Td>
-              </tr>
+              <TableBodySkeleton rows={6} cols={5} />
             ) : categories.length === 0 ? (
               <tr>
                 <Td colSpan={5} style={{ textAlign: "center", padding: 40 }}>
