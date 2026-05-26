@@ -7,7 +7,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { usePagination } from "@/hooks/usePagination";
 import Pagination from "@/components/Pagination";
 import styled from "styled-components";
-import { Search, Eye, Package, TrendingUp, FileText, Plus } from "lucide-react";
+import {
+  Search,
+  Eye,
+  Package,
+  TrendingUp,
+  FileText,
+  Plus,
+  BadgeCheck,
+} from "lucide-react";
 import Link from "next/link";
 import NextDynamic from "next/dynamic";
 import { Loader } from "@/components/ui/Loader";
@@ -148,7 +156,7 @@ const StatusBadge = styled.span<{ $status: string }>`
   background: ${(p) => {
     switch (p.$status) {
       case "PENDING":
-        return "#FFF3E0";
+        return "#FFF8E1";
       case "PAID":
         return "#E3F2FD";
       case "PROCESSING":
@@ -221,6 +229,31 @@ const EmptyState = styled.div`
   }
 `;
 
+const ConfirmPayBtn = styled.button`
+  padding: 7px 12px;
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  &:hover {
+    background: #2e7d32;
+    color: white;
+    border-color: #2e7d32;
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+`;
+
 const FilterTabs = styled.div`
   display: flex;
   gap: 8px;
@@ -267,6 +300,7 @@ export default function AdminPedidos() {
   const [typeFilter, setTypeFilter] = useState<"all" | "online" | "manual">(
     "all",
   );
+  const [confirming, setConfirming] = useState<string | null>(null);
   const [stats, setStats] = useState({
     total: 0,
     pending: 0,
@@ -322,6 +356,28 @@ export default function AdminPedidos() {
       (typeFilter === "manual" && isManual);
     return matchesSearch && matchesType;
   });
+
+  const handleConfirmPayment = async (orderId: string) => {
+    setConfirming(orderId);
+    const toastId = toast.loading("Confirmando pago...");
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "PAID" }),
+      });
+      if (res.ok) {
+        toast.success("Pago confirmado — factura generada", { id: toastId });
+        fetchOrders();
+      } else {
+        toast.error("Error al confirmar el pago", { id: toastId });
+      }
+    } catch {
+      toast.error("Error de conexión", { id: toastId });
+    } finally {
+      setConfirming(null);
+    }
+  };
 
   return (
     <Page>
@@ -460,7 +516,16 @@ export default function AdminPedidos() {
                     </StatusBadge>
                   </Td>
                   <Td>
-                    <div style={{ display: "flex", gap: 10 }}>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {order.status === "PENDING" && (
+                        <ConfirmPayBtn
+                          onClick={() => handleConfirmPayment(order.id)}
+                          disabled={confirming === order.id}
+                        >
+                          <BadgeCheck size={14} />
+                          {confirming === order.id ? "..." : "Confirmar Pago"}
+                        </ConfirmPayBtn>
+                      )}
                       <ViewButton href={`/admin/pedidos/${order.id}`}>
                         <Eye size={16} /> Detalle
                       </ViewButton>

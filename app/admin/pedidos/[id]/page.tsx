@@ -10,10 +10,12 @@ import {
   CreditCard,
   Truck,
   Check,
+  BadgeCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import SafeImage from "@/components/SafeImage";
+import { toast } from "sonner";
 
 const Page = styled.div``;
 
@@ -253,6 +255,7 @@ export default function AdminOrderDetail({
 
   const handleStatusUpdate = async () => {
     setUpdating(true);
+    const toastId = toast.loading("Actualizando estado...");
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`, {
         method: "PATCH",
@@ -261,12 +264,17 @@ export default function AdminOrderDetail({
       });
 
       if (res.ok) {
-        alert("Estado actualizado exitosamente");
+        const msg =
+          status === "PAID"
+            ? "Pago confirmado — factura generada automáticamente"
+            : "Estado actualizado";
+        toast.success(msg, { id: toastId });
         fetchOrder();
+      } else {
+        toast.error("Error al actualizar estado", { id: toastId });
       }
-    } catch (err) {
-      console.error(err);
-      alert("Error al actualizar estado");
+    } catch {
+      toast.error("Error de conexión", { id: toastId });
     } finally {
       setUpdating(false);
     }
@@ -332,12 +340,63 @@ export default function AdminOrderDetail({
         <div>
           <Card style={{ marginBottom: 25 }}>
             <h3>Estado del Pedido</h3>
+
+            {order.status === "PENDING" && (
+              <div
+                style={{
+                  background: "#fff8e1",
+                  border: "1px solid #ffe082",
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                  marginBottom: 18,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontWeight: 800,
+                      fontSize: "0.88rem",
+                      color: "#e65100",
+                    }}
+                  >
+                    Pendiente de pago
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#bf360c" }}>
+                    Confirma cuando recibas el pago
+                  </div>
+                </div>
+                <UpdateButton
+                  style={{
+                    width: "auto",
+                    padding: "10px 18px",
+                    background: "#2e7d32",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    fontSize: "0.85rem",
+                  }}
+                  onClick={() => {
+                    setStatus("PAID");
+                    handleStatusUpdate();
+                  }}
+                  disabled={updating}
+                >
+                  <BadgeCheck size={16} />
+                  {updating ? "..." : "Confirmar Pago"}
+                </UpdateButton>
+              </div>
+            )}
+
             <StatusSelector
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value="PENDING">Pendiente</option>
-              <option value="PAID">Pagado</option>
+              <option value="PENDING">Pendiente de Pago</option>
+              <option value="PAID">Pagado ✓</option>
               <option value="PROCESSING">En Proceso</option>
               <option value="SHIPPED">Enviado</option>
               <option value="DELIVERED">Entregado</option>
