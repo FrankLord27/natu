@@ -7,9 +7,10 @@ import { OrderProvider } from "@/context/OrderContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import { ConditionalFooter } from "@/components/layout/ConditionalFooter";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { CartDrawer } from "@/components/cart/CartDrawer";
+import { Toaster } from "sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -71,9 +72,10 @@ export default function RootLayout({
                 <WishlistProvider>
                   <Header />
                   <main>{children}</main>
-                  <Footer />
+                  <ConditionalFooter />
                   <WhatsAppButton />
                   <CartDrawer />
+                  <Toaster richColors position="top-right" />
                 </WishlistProvider>
               </OrderProvider>
             </CartProvider>
