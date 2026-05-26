@@ -11,6 +11,8 @@ import {
   Calendar,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const Page = styled.div`
   max-width: 1100px;
@@ -124,6 +126,7 @@ const ActionButton = styled.button`
 `;
 
 export default function Invoicing() {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -136,8 +139,9 @@ export default function Invoicing() {
       const res = await fetch("/api/admin/invoices");
       const data = await res.json();
       if (data.success) setInvoices(data.invoices);
-    } catch (err) {
-      console.error(err);
+      else toast.error("Error al cargar las facturas");
+    } catch {
+      toast.error("No se pudieron cargar las facturas");
     } finally {
       setLoading(false);
     }
@@ -149,6 +153,7 @@ export default function Invoicing() {
         <h1>Facturación y Cobros</h1>
         <div style={{ display: "flex", gap: 15 }}>
           <button
+            onClick={() => router.push("/admin/ventas-manuales")}
             style={{
               background: "#1a1a1a",
               color: "white",

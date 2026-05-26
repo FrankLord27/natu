@@ -814,6 +814,32 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"   # En prod: https://tu-dominio.com
 
 ---
 
+## 🔐 Acceso al Sistema
+
+El sistema tiene **dos portales de login separados** para roles distintos:
+
+| Portal              | URL                | Tabla       | Quién                                |
+| ------------------- | ------------------ | ----------- | ------------------------------------ |
+| Clientes            | `/login`           | `User`      | Compradores registrados en la tienda |
+| **Administradores** | **`/admin/login`** | `AdminUser` | Staff con acceso al panel admin      |
+
+> **Importante:** las credenciales de admin NO funcionan en `/login` y viceversa. Son tablas de base de datos independientes.
+
+### Credenciales del admin (seed)
+
+| Campo      | Valor                               |
+| ---------- | ----------------------------------- |
+| URL        | `http://localhost:3000/admin/login` |
+| Email      | `admin@naturajm.com`                |
+| Contraseña | `Admin123!`                         |
+| Rol        | `SUPERADMIN`                        |
+
+### Crear cuenta de cliente
+
+Los clientes se registran desde `/registrarse` en la tienda pública. No existe un formulario de registro de admin — los admins se crean directamente en la base de datos o vía seed.
+
+---
+
 ## 🌱 Seed de Base de Datos
 
 El seed script crea datos iniciales para desarrollo:

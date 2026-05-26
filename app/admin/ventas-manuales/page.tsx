@@ -14,6 +14,7 @@ import {
   Search,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const Page = styled.div`
   max-width: 1000px;
@@ -202,7 +203,7 @@ export default function ManualSales() {
       })
       .catch((err) => {
         console.error("Error fetching products:", err);
-        alert("Error al cargar los productos");
+        toast.error("Error al cargar los productos");
       });
   }, []);
 
@@ -238,11 +239,12 @@ export default function ManualSales() {
 
   const handleSubmit = async () => {
     if (!customerName || items.some((item) => !item.productId)) {
-      alert("Por favor completa todos los campos obligatorios");
+      toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
 
     setSaving(true);
+    const toastId = toast.loading("Registrando venta...");
     try {
       const res = await fetch("/api/admin/manual-sales", {
         method: "POST",
@@ -256,14 +258,14 @@ export default function ManualSales() {
       });
 
       if (res.ok) {
-        alert("Venta registrada con éxito");
+        toast.success("Venta registrada con éxito", { id: toastId });
         router.push("/admin/pedidos");
       } else {
         const data = await res.json();
-        alert("Error: " + data.error);
+        toast.error("Error: " + data.error, { id: toastId });
       }
-    } catch (err) {
-      alert("Error en la conexión");
+    } catch {
+      toast.error("Error de conexión al registrar la venta", { id: toastId });
     } finally {
       setSaving(false);
     }
