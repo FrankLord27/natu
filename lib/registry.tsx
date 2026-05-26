@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useServerInsertedHTML } from 'next/navigation';
-import { ServerStyleSheet, StyleSheetManager, ThemeProvider } from 'styled-components';
-import { theme } from '@/styles/theme';
+import React, { useState } from "react";
+import { useServerInsertedHTML } from "next/navigation";
+import {
+  ServerStyleSheet,
+  StyleSheetManager,
+  ThemeProvider,
+} from "styled-components";
+import { theme } from "@/styles/theme";
 
-export default function StyledComponentsRegistry({ children }: { children: React.ReactNode }) {
+export default function StyledComponentsRegistry({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [styledComponentsStyleSheet] = useState(() => new ServerStyleSheet());
 
   useServerInsertedHTML(() => {
@@ -14,7 +22,7 @@ export default function StyledComponentsRegistry({ children }: { children: React
     return <>{styles}</>;
   });
 
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
   }
 

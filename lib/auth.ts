@@ -1,7 +1,7 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import bcrypt from 'bcryptjs';
-import { prisma } from './prisma';
+import { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import { prisma } from "./prisma";
 
 /**
  * Configuración de NextAuth con dos proveedores:
@@ -14,11 +14,11 @@ export const authOptions: NextAuthOptions = {
      * Proveedor para ADMINISTRADORES
      */
     CredentialsProvider({
-      id: 'admin',
-      name: 'Admin Credentials',
+      id: "admin",
+      name: "Admin Credentials",
       credentials: {
-        email: { label: 'Correo Electrónico', type: 'email' },
-        password: { label: 'Contraseña', type: 'password' },
+        email: { label: "Correo Electrónico", type: "email" },
+        password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -31,7 +31,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.passwordHash,
+        );
         if (!isValid) return null;
 
         return {
@@ -39,7 +42,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          userType: 'admin', // Marcador para diferenciar en callbacks
+          userType: "admin", // Marcador para diferenciar en callbacks
         };
       },
     }),
@@ -48,15 +51,15 @@ export const authOptions: NextAuthOptions = {
      * Proveedor para CLIENTES
      */
     CredentialsProvider({
-      id: 'customer',
-      name: 'Customer Credentials',
+      id: "customer",
+      name: "Customer Credentials",
       credentials: {
-        email: { label: 'Correo Electrónico', type: 'email' },
-        password: { label: 'Contraseña', type: 'password' },
+        email: { label: "Correo Electrónico", type: "email" },
+        password: { label: "Contraseña", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Credenciales faltantes');
+          throw new Error("Credenciales faltantes");
         }
 
         const user = await prisma.user.findUnique({
@@ -64,23 +67,23 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error('Usuario no encontrado');
+          throw new Error("Usuario no encontrado");
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
-          user.passwordHash
+          user.passwordHash,
         );
 
         if (!isPasswordValid) {
-          throw new Error('Contraseña incorrecta');
+          throw new Error("Contraseña incorrecta");
         }
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
-          userType: 'customer',
+          userType: "customer",
         };
       },
     }),
@@ -109,10 +112,10 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/login', // Login por defecto para customers
+    signIn: "/login", // Login por defecto para customers
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

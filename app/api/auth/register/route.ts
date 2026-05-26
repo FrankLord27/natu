@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
 
 /**
  * POST /api/auth/register
@@ -13,8 +13,8 @@ export async function POST(req: NextRequest) {
     // Validaciones
     if (!name || !email || !password) {
       return NextResponse.json(
-        { error: 'Nombre, email y contraseña son obligatorios' },
-        { status: 400 }
+        { error: "Nombre, email y contraseña son obligatorios" },
+        { status: 400 },
       );
     }
 
@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
 
     if (existingUser) {
       return NextResponse.json(
-        { error: 'Este correo electrónico ya está registrado' },
-        { status: 400 }
+        { error: "Este correo electrónico ya está registrado" },
+        { status: 400 },
       );
     }
 
@@ -51,18 +51,18 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Usuario registrado exitosamente',
+      message: "Usuario registrado exitosamente",
       user,
     });
   } catch (error: any) {
-    console.error('Detailed Registration Error:', {
+    console.error("Detailed Registration Error:", {
       message: error.message,
       stack: error.stack,
-      error
+      error,
     });
     return NextResponse.json(
-      { error: 'Error al registrar usuario', details: error.message },
-      { status: 500 }
+      { error: "Error al registrar usuario", details: error.message },
+      { status: 500 },
     );
   }
 }

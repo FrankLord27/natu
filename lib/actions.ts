@@ -18,20 +18,28 @@ import { sendEmail, getOrderConfirmationTemplate } from "@/lib/email";
  * @param options - Opciones de filtrado (query, category, minPrice, maxPrice, minRating, sort).
  * @returns Objeto con éxito, datos (array de productos) o error.
  */
-export async function getProducts(options: {
-  query?: string;
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  minRating?: number;
-  sort?: string;
-  page?: number;
-  limit?: number;
-} = {}) {
+export async function getProducts(
+  options: {
+    query?: string;
+    category?: string;
+    minPrice?: number;
+    maxPrice?: number;
+    minRating?: number;
+    sort?: string;
+    page?: number;
+    limit?: number;
+  } = {},
+) {
   try {
-    const { 
-      query, category, minPrice, maxPrice, minRating, sort, 
-      page = 1, limit = 12 
+    const {
+      query,
+      category,
+      minPrice,
+      maxPrice,
+      minRating,
+      sort,
+      page = 1,
+      limit = 12,
     } = options;
     const skip = (page - 1) * limit;
 
@@ -63,24 +71,27 @@ export async function getProducts(options: {
         skip,
         take: limit,
         include: { category: true },
-        orderBy: 
-          sort === 'price-asc' ? { price: 'asc' } :
-          sort === 'price-desc' ? { price: 'desc' } :
-          sort === 'rating' ? { averageRating: 'desc' } :
-          { createdAt: 'desc' },
+        orderBy:
+          sort === "price-asc"
+            ? { price: "asc" }
+            : sort === "price-desc"
+              ? { price: "desc" }
+              : sort === "rating"
+                ? { averageRating: "desc" }
+                : { createdAt: "desc" },
       }),
-      prisma.product.count({ where })
+      prisma.product.count({ where }),
     ]);
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: products,
       pagination: {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     };
   } catch (error) {
     console.error("Error al obtener productos:", error);
@@ -321,17 +332,21 @@ export async function toggleProductVisibility(
  *
  * @returns Objeto con éxito y la lista de todos los productos.
  */
-export async function getAdminProducts(options: { page?: number; limit?: number; search?: string } = {}) {
+export async function getAdminProducts(
+  options: { page?: number; limit?: number; search?: string } = {},
+) {
   try {
-    const { page = 1, limit = 10, search = '' } = options;
+    const { page = 1, limit = 10, search = "" } = options;
     const skip = (page - 1) * limit;
 
-    const where = search ? {
-      OR: [
-        { name: { contains: search, mode: 'insensitive' as const } },
-        { sku: { contains: search, mode: 'insensitive' as const } }
-      ]
-    } : {};
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { sku: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {};
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
@@ -341,18 +356,18 @@ export async function getAdminProducts(options: { page?: number; limit?: number;
         skip,
         take: limit,
       }),
-      prisma.product.count({ where })
+      prisma.product.count({ where }),
     ]);
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       data: products,
       pagination: {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     };
   } catch (error) {
     console.error("Error al obtener productos admin:", error);
@@ -401,7 +416,10 @@ export async function submitReview(data: {
     const session = await getServerSession(authOptions);
 
     if (!session?.user || (session.user as any).userType !== "customer") {
-      return { success: false, error: "Debes iniciar sesión como cliente para dejar una reseña" };
+      return {
+        success: false,
+        error: "Debes iniciar sesión como cliente para dejar una reseña",
+      };
     }
 
     const userId = (session.user as any).id;
@@ -412,7 +430,10 @@ export async function submitReview(data: {
     });
 
     if (existing) {
-      return { success: false, error: "Ya has dejado una reseña para este producto" };
+      return {
+        success: false,
+        error: "Ya has dejado una reseña para este producto",
+      };
     }
 
     await prisma.review.create({
@@ -442,27 +463,31 @@ export async function processOrderPayment(orderId: string) {
   try {
     const order = await prisma.order.findUnique({
       where: { id: orderId },
-      include: { 
+      include: {
         items: {
-          include: { product: true }
-        }, 
-        invoice: true, 
-        user: true 
-      }
+          include: { product: true },
+        },
+        invoice: true,
+        user: true,
+      },
     });
 
     if (!order) return { success: false, error: "Pedido no encontrado" };
-    if (order.status !== 'PAID') {
-       await prisma.order.update({ where: { id: orderId }, data: { status: 'PAID' } });
+    if (order.status !== "PAID") {
+      await prisma.order.update({
+        where: { id: orderId },
+        data: { status: "PAID" },
+      });
     }
 
     // Si ya tiene factura, no hacemos nada
-    if (order.invoice) return { success: true, message: "El pedido ya está procesado" };
+    if (order.invoice)
+      return { success: true, message: "El pedido ya está procesado" };
 
     // Generar número de factura secuencial (simplificado)
     const count = await prisma.invoice.count();
-    const invoiceNumber = `FAC-${new Date().getFullYear()}-${(count + 1).toString().padStart(4, '0')}`;
-    
+    const invoiceNumber = `FAC-${new Date().getFullYear()}-${(count + 1).toString().padStart(4, "0")}`;
+
     // Cálculos contables (Asumiendo 18% ITBIS/IVA)
     const subtotal = order.total / 1.18;
     const taxAmount = order.total - subtotal;
@@ -474,57 +499,63 @@ export async function processOrderPayment(orderId: string) {
         subtotal,
         taxAmount,
         total: order.total,
-        status: 'PAID'
-      }
+        status: "PAID",
+      },
     });
 
     // Registrar Ingreso Contable
     await prisma.accountingEntry.create({
       data: {
-        type: 'INCOME',
-        category: 'SALES',
+        type: "INCOME",
+        category: "SALES",
         amount: order.total,
         description: `Venta - Pedido #${order.id.slice(-6)}`,
         orderId,
-        invoiceId: invoice.id
-      }
+        invoiceId: invoice.id,
+      },
     });
 
     // Registrar Costo de Mercancía (COGS)
-    const totalCost = order.items.reduce((sum: number, item: any) => sum + (item.costPrice * item.quantity), 0);
+    const totalCost = order.items.reduce(
+      (sum: number, item: any) => sum + item.costPrice * item.quantity,
+      0,
+    );
     if (totalCost > 0) {
       await prisma.accountingEntry.create({
         data: {
-          type: 'EXPENSE',
-          category: 'COGS',
+          type: "EXPENSE",
+          category: "COGS",
           amount: totalCost,
           description: `Costo de venta - Pedido #${order.id.slice(-6)}`,
           orderId,
-          invoiceId: invoice.id
-        }
+          invoiceId: invoice.id,
+        },
       });
     }
 
     // Enviar correo de confirmación con Factura
     if (order.user?.email || (order as any).customerEmail) {
       const { getInvoiceEmailHtml } = await import("@/lib/email-templates");
-      
+
       const emailHtml = getInvoiceEmailHtml({
         orderId: order.id,
-        customerName: order.user?.name || (order as any).customerName || 'Cliente',
+        customerName:
+          order.user?.name || (order as any).customerName || "Cliente",
         total: order.total,
         items: order.items.map((item: any) => ({
           name: item.product.name,
           quantity: item.quantity,
-          price: item.price
+          price: item.price,
         })),
-        invoiceUrl: invoice.pdfUrl || `${process.env.NEXT_PUBLIC_APP_URL}/admin/pedidos/${order.id}/factura`
+        invoiceUrl:
+          invoice.pdfUrl ||
+          `${process.env.NEXT_PUBLIC_APP_URL}/admin/pedidos/${order.id}/factura`,
       });
 
       await sendEmail({
         to: order.user?.email || (order as any).customerEmail,
         subject: `Confirmación de Pedido #${order.id.slice(-6)} - NaturaJM`,
-        html: emailHtml
+        html: emailHtml,
       });
     }
 
@@ -548,11 +579,15 @@ export async function getFinancialSummary() {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const entries = await prisma.accountingEntry.findMany({
-      where: { date: { gte: startOfMonth } }
+      where: { date: { gte: startOfMonth } },
     });
 
-    const income = entries.filter((e: any) => e.type === 'INCOME').reduce((s: number, e: any) => s + e.amount, 0);
-    const expense = entries.filter((e: any) => e.type === 'EXPENSE').reduce((s: number, e: any) => s + e.amount, 0);
+    const income = entries
+      .filter((e: any) => e.type === "INCOME")
+      .reduce((s: number, e: any) => s + e.amount, 0);
+    const expense = entries
+      .filter((e: any) => e.type === "EXPENSE")
+      .reduce((s: number, e: any) => s + e.amount, 0);
 
     // Obtener tendencia de los últimos 6 meses
     const sixMonthsAgo = new Date();
@@ -560,16 +595,17 @@ export async function getFinancialSummary() {
 
     const history = await prisma.accountingEntry.findMany({
       where: { date: { gte: sixMonthsAgo } },
-      orderBy: { date: 'asc' }
+      orderBy: { date: "asc" },
     });
 
     // Agrupar por mes para gráficos
     const monthlyData: Record<string, any> = {};
     history.forEach((e: any) => {
-      const month = e.date.toLocaleString('es-ES', { month: 'short' });
-      if (!monthlyData[month]) monthlyData[month] = { month, income: 0, profit: 0, expense: 0 };
-      
-      if (e.type === 'INCOME') {
+      const month = e.date.toLocaleString("es-ES", { month: "short" });
+      if (!monthlyData[month])
+        monthlyData[month] = { month, income: 0, profit: 0, expense: 0 };
+
+      if (e.type === "INCOME") {
         monthlyData[month].income += e.amount;
         monthlyData[month].profit += e.amount;
       } else {
@@ -582,7 +618,7 @@ export async function getFinancialSummary() {
       success: true,
       data: {
         currentMonth: { income, expense, profit: income - expense },
-      }
+      },
     };
   } catch (error) {
     console.error("Error al obtener resumen financiero:", error);
@@ -603,10 +639,17 @@ export async function getLowStockProducts() {
     // pero podemos filtrar en memoria o usar raw query si fuera necesario.
     // Para simplificar y dado que el catálogo no es masivo, traemos productos activos y filtramos.
     // Una opción más eficiente en SQL nativo sería: WHERE stock <= minStockLevel
-    
+
     const products = await prisma.product.findMany({
       where: { isActive: true },
-      select: { id: true, name: true, sku: true, stock: true, minStockLevel: true, imageUrls: true }
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        stock: true,
+        minStockLevel: true,
+        imageUrls: true,
+      },
     });
 
     const lowStock = products.filter((p: any) => p.stock <= p.minStockLevel);
@@ -626,14 +669,21 @@ export async function getLowStockProducts() {
  * @param reason - Razón del ajuste (ej. "Reabastecimiento", "Pérdida", "Ajuste manual").
  * @param notes - Notas opcionales.
  */
-export async function adjustInventory(productId: string, newStock: number, reason: string, notes?: string) {
+export async function adjustInventory(
+  productId: string,
+  newStock: number,
+  reason: string,
+  notes?: string,
+) {
   try {
-    const product = await prisma.product.findUnique({ where: { id: productId } });
+    const product = await prisma.product.findUnique({
+      where: { id: productId },
+    });
     if (!product) return { success: false, error: "Producto no encontrado" };
 
     const oldStock = product.stock;
     const diff = newStock - oldStock;
-    const type = diff >= 0 ? 'IN' : 'OUT';
+    const type = diff >= 0 ? "IN" : "OUT";
 
     const historyEntry = {
       date: new Date().toISOString(),
@@ -643,7 +693,7 @@ export async function adjustInventory(productId: string, newStock: number, reaso
       newStock,
       reason,
       notes,
-      user: 'Admin' // Idealmente obtener del session
+      user: "Admin", // Idealmente obtener del session
     };
 
     // Actualizar producto y añadir al historial (JSON array)
@@ -655,8 +705,8 @@ export async function adjustInventory(productId: string, newStock: number, reaso
       where: { id: productId },
       data: {
         stock: newStock,
-        inventoryHistory: updatedHistory
-      }
+        inventoryHistory: updatedHistory,
+      },
     });
 
     revalidatePath("/admin/inventario");
@@ -675,7 +725,10 @@ export async function adjustInventory(productId: string, newStock: number, reaso
  * @param email - Correo a suscribir.
  * @param source - Fuente de la suscripción (ej. "footer").
  */
-export async function subscribeToNewsletter(email: string, source: string = "footer") {
+export async function subscribeToNewsletter(
+  email: string,
+  source: string = "footer",
+) {
   try {
     // Validar formato de email simple
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -684,14 +737,14 @@ export async function subscribeToNewsletter(email: string, source: string = "foo
     }
 
     const existing = await prisma.newsletterSubscriber.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existing) {
       if (!existing.isActive) {
         await prisma.newsletterSubscriber.update({
           where: { email },
-          data: { isActive: true, source } // Reactivar
+          data: { isActive: true, source }, // Reactivar
         });
         return { success: true, message: "¡Suscripción reactivada!" };
       }
@@ -702,8 +755,8 @@ export async function subscribeToNewsletter(email: string, source: string = "foo
       data: {
         email,
         source,
-        tags: ["lead"]
-      }
+        tags: ["lead"],
+      },
     });
 
     return { success: true, message: "¡Gracias por suscribirte!" };
@@ -719,7 +772,10 @@ export async function subscribeToNewsletter(email: string, source: string = "foo
  * @param cartToken - Token único del carrito (identificador persistente).
  * @param data - Datos del carrito (email, items, total).
  */
-export async function syncAbandonedCart(cartToken: string, data: { email?: string; items: any; total: number }) {
+export async function syncAbandonedCart(
+  cartToken: string,
+  data: { email?: string; items: any; total: number },
+) {
   try {
     if (!cartToken) return { success: false, error: "Cart token required" };
 
@@ -729,15 +785,15 @@ export async function syncAbandonedCart(cartToken: string, data: { email?: strin
         email: data.email,
         items: data.items,
         total: data.total,
-        recovered: false
+        recovered: false,
       },
       create: {
         cartToken,
         email: data.email,
         items: data.items,
         total: data.total,
-        recovered: false
-      }
+        recovered: false,
+      },
     });
 
     return { success: true, id: cart.id };
