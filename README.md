@@ -712,42 +712,55 @@ naturajm/
 - **npm** >= 9.0
 - **MinIO** (local vía Docker o instancia externa) — para subida de imágenes
 
-### Pasos
+### 1. Base de datos y MinIO con Docker
+
+El proyecto incluye `docker-compose.dev.yml` con PostgreSQL 16 + MinIO listos para usar:
 
 ```bash
-# 1. Clonar el repositorio
+docker compose -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml ps   # verificar que estén healthy
+```
+
+| Servicio   | Host             | Credenciales                                 |
+| ---------- | ---------------- | -------------------------------------------- |
+| PostgreSQL | `localhost:5432` | `naturajm` / `naturajm_dev` / DB: `naturajm` |
+| MinIO API  | `localhost:9004` | `minioadmin` / `minioadminpassword`          |
+| MinIO UI   | `localhost:9005` | `minioadmin` / `minioadminpassword`          |
+
+### 2. Instalar y configurar
+
+```bash
+# Clonar el repositorio
 git clone https://github.com/FrankLord27/naturajm_ecommer.git
 cd naturajm_ecommer
 
-# 2. Instalar dependencias
+# Instalar dependencias (también corre prisma generate via postinstall)
 npm install
 
-# 3. Configurar variables de entorno
+# Copiar variables de entorno y completar los valores
 cp .env.example .env
-# Editar .env con tus credenciales (ver sección siguiente)
-
-# 4. Sincronizar el schema con la base de datos
-npm run db:push
-
-# 5. Poblar con datos de ejemplo
-npm run db:seed
-
-# 6. Iniciar servidor de desarrollo
-npm run dev
 ```
 
-> **Nota:** `npm install` ejecuta automáticamente `prisma generate` via el hook `postinstall`.
+Edita `.env` y asegúrate de tener al mínimo:
 
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador.
+```env
+DATABASE_URL="postgresql://naturajm:naturajm_dev@localhost:5432/naturajm"
+NEXTAUTH_SECRET="cualquier-string-largo-aleatorio"
+NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
 
-### MinIO local (almacenamiento de imágenes)
+### 3. Inicializar la base de datos
 
 ```bash
-# Levantar MinIO con Docker
-docker compose -f docker-compose-minio.yml up -d
+npm run db:push    # sincroniza el schema (crea las tablas)
+npm run db:seed    # carga datos de ejemplo
+```
 
-# Consola web disponible en http://localhost:9005
-# Usuario: minioadmin  /  Contraseña: minioadminpassword
+### 4. Iniciar en desarrollo
+
+```bash
+npm run dev
 ```
 
 ---
