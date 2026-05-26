@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import {
   Package,
   Users,
@@ -21,7 +22,13 @@ const Title = styled.h1`
   font-size: 2rem;
   font-weight: 900;
   color: #333;
-  margin-bottom: 30px;
+  margin-bottom: 10px;
+`;
+
+const Subtitle = styled.p`
+  font-size: 0.95rem;
+  color: #999;
+  margin: 0 0 30px 0;
 `;
 
 const StatsGrid = styled.div`
@@ -75,10 +82,22 @@ const StatInfo = styled.div`
   }
 `;
 
-const MainSection = styled.div`
+const Row = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: inherit;
   gap: 25px;
+  margin-bottom: 25px;
+`;
+
+const ChartRow = styled(Row)`
+  grid-template-columns: 2fr 1fr;
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const OrderRow = styled(Row)`
+  grid-template-columns: 1.5fr 1fr;
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
   }
@@ -149,8 +168,19 @@ const DashboardChart = dynamic(
 import { InvoiceView } from "@/components/admin/InvoiceView";
 
 const ChartCard = styled(Card)`
-  height: 350px;
+  height: auto;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    margin-bottom: 20px;
+  }
+
+  > div {
+    flex: 1;
+    min-height: 300px;
+  }
 `;
 
 const StatusBadge = styled.span<{ $status: string }>`
@@ -258,7 +288,7 @@ export default function AdminDashboard() {
           setStats(data);
         }
       } catch {
-        /* will use zeroes */
+        toast.error("Error al cargar estadísticas");
       }
     };
     fetchStats();
@@ -309,6 +339,7 @@ export default function AdminDashboard() {
           Elite Business 1.0
         </span>
       </Title>
+      <Subtitle>Resumen general del negocio</Subtitle>
 
       <StatsGrid>
         {statCards.map((s, i) => (
@@ -327,181 +358,16 @@ export default function AdminDashboard() {
         ))}
       </StatsGrid>
 
-      <MainSection>
-        <Column>
-          {/* SECCIÓN DE ALTA PRIORIDAD: PEDIDOS RECIENTES */}
-          <Card>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: 20,
-              }}
-            >
-              <h3 style={{ margin: 0 }}>🚨 Pedidos Recientes (Urgente)</h3>
-              <a
-                href="/admin/pedidos"
-                style={{
-                  fontSize: "0.8rem",
-                  color: "#7BB32E",
-                  fontWeight: 700,
-                }}
-              >
-                Ver todos
-              </a>
-            </div>
-            <div style={{ overflowX: "auto" }}>
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <thead>
-                  <tr
-                    style={{
-                      textAlign: "left",
-                      borderBottom: "2px solid #f5f5f5",
-                      color: "#888",
-                      fontSize: "0.75rem",
-                      textTransform: "uppercase",
-                    }}
-                  >
-                    <th style={{ padding: "12px 8px" }}>Pedido</th>
-                    <th style={{ padding: "12px 8px" }}>Cliente</th>
-                    <th style={{ padding: "12px 8px" }}>Total</th>
-                    <th style={{ padding: "12px 8px" }}>Estado</th>
-                    <th style={{ padding: "12px 8px" }}>DOC</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {stats.recentOrders.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        style={{
-                          padding: 30,
-                          textAlign: "center",
-                          color: "#BBB",
-                        }}
-                      >
-                        No hay pedidos registrados
-                      </td>
-                    </tr>
-                  ) : (
-                    stats.recentOrders.map((o) => (
-                      <tr
-                        key={o.id}
-                        style={{ borderBottom: "1px solid #f9f9f9" }}
-                      >
-                        <td style={{ padding: "14px 8px", fontWeight: 800 }}>
-                          #{o.id.slice(-6).toUpperCase()}
-                        </td>
-                        <td style={{ padding: "14px 8px" }}>{o.customer}</td>
-                        <td
-                          style={{
-                            padding: "14px 8px",
-                            fontWeight: 800,
-                            color: "#7BB32E",
-                          }}
-                        >
-                          ${o.total.toFixed(2)}
-                        </td>
-                        <td style={{ padding: "14px 8px" }}>
-                          <StatusBadge $status={o.status}>
-                            {o.status}
-                          </StatusBadge>
-                        </td>
-                        <td style={{ padding: "14px 8px" }}>
-                          {o.hasInvoice ? (
-                            <span
-                              title="Ver Factura"
-                              onClick={() => setSelectedOrder(o)}
-                              style={{ cursor: "pointer" }}
-                            >
-                              <FileText size={16} color="#7BB32E" />
-                            </span>
-                          ) : (
-                            <div
-                              style={{
-                                width: 16,
-                                height: 16,
-                                borderRadius: 8,
-                                border: "1px dashed #DDD",
-                              }}
-                              title="Sin Factura"
-                            />
-                          )}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </Card>
-
-          <Card>
-            <h3 style={{ margin: 0, marginBottom: 20 }}>
-              📊 Historial Contable (Income/Expense)
-            </h3>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {stats.recentAccounting.map((entry) => (
-                <ListItem
-                  key={entry.id}
-                  style={{
-                    border: "1px solid #F0F0F0",
-                    padding: "12px 15px",
-                    borderRadius: 10,
-                  }}
-                >
-                  <div
-                    style={{ display: "flex", gap: 12, alignItems: "center" }}
-                  >
-                    <div
-                      style={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: "50%",
-                        background:
-                          entry.type === "INCOME" ? "#7BB32E" : "#FF5252",
-                      }}
-                    />
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>
-                        {entry.description}
-                      </span>
-                      <span style={{ fontSize: "0.7rem", color: "#999" }}>
-                        {entry.category} •{" "}
-                        {new Date(entry.date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      fontWeight: 800,
-                      color: entry.type === "INCOME" ? "#7BB32E" : "#FF5252",
-                    }}
-                  >
-                    {entry.type === "INCOME" ? "+" : "-"}$
-                    {entry.amount.toFixed(2)}
-                  </span>
-                </ListItem>
-              ))}
-            </div>
-          </Card>
-        </Column>
+      {/* FILA 2: Gráfico + Engagement & Top Productos */}
+      <ChartRow>
+        <ChartCard>
+          <h3 style={{ margin: 0, marginBottom: 20 }}>Tendencia de Ventas</h3>
+          <div>
+            <DashboardChart data={stats.chartData} />
+          </div>
+        </ChartCard>
 
         <Column>
-          <ChartCard>
-            <h3 style={{ margin: 0, marginBottom: 20 }}>Tendencia de Ventas</h3>
-            <div style={{ height: "200px" }}>
-              <DashboardChart data={stats.chartData} />
-            </div>
-          </ChartCard>
-
           <Card>
             <h3>Engagement & Sitio</h3>
             <ListItem>
@@ -557,7 +423,169 @@ export default function AdminDashboard() {
             )}
           </Card>
         </Column>
-      </MainSection>
+      </ChartRow>
+
+      {/* FILA 3: Pedidos Recientes + Historial Contable */}
+      <OrderRow>
+        <Card>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 20,
+            }}
+          >
+            <h3 style={{ margin: 0 }}>Pedidos Recientes</h3>
+            <a
+              href="/admin/pedidos"
+              style={{
+                fontSize: "0.8rem",
+                color: "#7BB32E",
+                fontWeight: 700,
+              }}
+            >
+              Ver todos
+            </a>
+          </div>
+          <div style={{ overflowX: "auto" }}>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                fontSize: "0.9rem",
+              }}
+            >
+              <thead>
+                <tr
+                  style={{
+                    textAlign: "left",
+                    borderBottom: "2px solid #f5f5f5",
+                    color: "#888",
+                    fontSize: "0.75rem",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  <th style={{ padding: "12px 8px" }}>Pedido</th>
+                  <th style={{ padding: "12px 8px" }}>Cliente</th>
+                  <th style={{ padding: "12px 8px" }}>Total</th>
+                  <th style={{ padding: "12px 8px" }}>Estado</th>
+                  <th style={{ padding: "12px 8px" }}>DOC</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentOrders.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      style={{
+                        padding: 30,
+                        textAlign: "center",
+                        color: "#BBB",
+                      }}
+                    >
+                      No hay pedidos registrados
+                    </td>
+                  </tr>
+                ) : (
+                  stats.recentOrders.map((o) => (
+                    <tr
+                      key={o.id}
+                      style={{ borderBottom: "1px solid #f9f9f9" }}
+                    >
+                      <td style={{ padding: "14px 8px", fontWeight: 800 }}>
+                        #{o.id.slice(-6).toUpperCase()}
+                      </td>
+                      <td style={{ padding: "14px 8px" }}>{o.customer}</td>
+                      <td
+                        style={{
+                          padding: "14px 8px",
+                          fontWeight: 800,
+                          color: "#7BB32E",
+                        }}
+                      >
+                        ${o.total.toFixed(2)}
+                      </td>
+                      <td style={{ padding: "14px 8px" }}>
+                        <StatusBadge $status={o.status}>{o.status}</StatusBadge>
+                      </td>
+                      <td style={{ padding: "14px 8px" }}>
+                        {o.hasInvoice ? (
+                          <span
+                            title="Ver Factura"
+                            onClick={() => setSelectedOrder(o)}
+                            style={{ cursor: "pointer" }}
+                          >
+                            <FileText size={16} color="#7BB32E" />
+                          </span>
+                        ) : (
+                          <div
+                            style={{
+                              width: 16,
+                              height: 16,
+                              borderRadius: 8,
+                              border: "1px dashed #DDD",
+                            }}
+                            title="Sin Factura"
+                          />
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+
+        <Card>
+          <h3 style={{ margin: 0, marginBottom: 20 }}>
+            Historial Contable (Income/Expense)
+          </h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {stats.recentAccounting.map((entry) => (
+              <ListItem
+                key={entry.id}
+                style={{
+                  border: "1px solid #F0F0F0",
+                  padding: "12px 15px",
+                  borderRadius: 10,
+                }}
+              >
+                <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                  <div
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: "50%",
+                      background:
+                        entry.type === "INCOME" ? "#7BB32E" : "#FF5252",
+                    }}
+                  />
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <span style={{ fontSize: "0.85rem", fontWeight: 700 }}>
+                      {entry.description}
+                    </span>
+                    <span style={{ fontSize: "0.7rem", color: "#999" }}>
+                      {entry.category} •{" "}
+                      {new Date(entry.date).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+                <span
+                  style={{
+                    fontWeight: 800,
+                    color: entry.type === "INCOME" ? "#7BB32E" : "#FF5252",
+                  }}
+                >
+                  {entry.type === "INCOME" ? "+" : "-"}$
+                  {entry.amount.toFixed(2)}
+                </span>
+              </ListItem>
+            ))}
+          </div>
+        </Card>
+      </OrderRow>
 
       {selectedOrder && (
         <InvoiceView
