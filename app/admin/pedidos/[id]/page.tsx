@@ -1,11 +1,21 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
-import { ArrowLeft, Package, User, MapPin, CreditCard, Truck, Check } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import SafeImage from '@/components/SafeImage';
+import React, { useState, useEffect, useCallback } from "react";
+import styled from "styled-components";
+import {
+  ArrowLeft,
+  Package,
+  User,
+  MapPin,
+  CreditCard,
+  Truck,
+  Check,
+  BadgeCheck,
+} from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import SafeImage from "@/components/SafeImage";
+import { toast } from "sonner";
 
 const Page = styled.div``;
 
@@ -25,11 +35,11 @@ const BackButton = styled(Link)`
   align-items: center;
   justify-content: center;
   transition: all 0.3s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background: ${p => p.theme.colors.primaryPale};
-    color: ${p => p.theme.colors.primary};
+    background: ${(p) => p.theme.colors.primaryPale};
+    color: ${(p) => p.theme.colors.primary};
   }
 `;
 
@@ -53,7 +63,7 @@ const Card = styled.div`
   background: white;
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 
   h3 {
     font-size: 1.1rem;
@@ -74,21 +84,21 @@ const StatusSelector = styled.select`
 
   &:focus {
     outline: none;
-    border-color: ${p => p.theme.colors.primary};
+    border-color: ${(p) => p.theme.colors.primary};
   }
 `;
 
 const UpdateButton = styled.button`
   width: 100%;
   padding: 14px;
-  background: ${p => p.theme.colors.primary};
+  background: ${(p) => p.theme.colors.primary};
   color: white;
   border-radius: 10px;
   font-weight: 700;
   transition: all 0.3s;
 
   &:hover {
-    background: ${p => p.theme.colors.primaryDark};
+    background: ${(p) => p.theme.colors.primaryDark};
   }
 
   &:disabled {
@@ -156,7 +166,7 @@ const Item = styled.div`
 
   .price {
     font-weight: 800;
-    color: ${p => p.theme.colors.primary};
+    color: ${(p) => p.theme.colors.primary};
     font-size: 1.1rem;
   }
 `;
@@ -177,7 +187,7 @@ const TotalRow = styled.div`
   .value {
     font-size: 1.5rem;
     font-weight: 900;
-    color: ${p => p.theme.colors.primary};
+    color: ${(p) => p.theme.colors.primary};
   }
 `;
 
@@ -213,11 +223,15 @@ interface OrderData {
   }>;
 }
 
-export default function AdminOrderDetail({ params }: { params: { id: string } }) {
+export default function AdminOrderDetail({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
   const [order, setOrder] = useState<OrderData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState('');
+  const [status, setStatus] = useState("");
   const [updating, setUpdating] = useState(false);
 
   const fetchOrder = useCallback(async () => {
@@ -241,20 +255,26 @@ export default function AdminOrderDetail({ params }: { params: { id: string } })
 
   const handleStatusUpdate = async () => {
     setUpdating(true);
+    const toastId = toast.loading("Actualizando estado...");
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),
       });
 
       if (res.ok) {
-        alert('Estado actualizado exitosamente');
+        const msg =
+          status === "PAID"
+            ? "Pago confirmado — factura generada automáticamente"
+            : "Estado actualizado";
+        toast.success(msg, { id: toastId });
         fetchOrder();
+      } else {
+        toast.error("Error al actualizar estado", { id: toastId });
       }
-    } catch (err) {
-      console.error(err);
-      alert('Error al actualizar estado');
+    } catch {
+      toast.error("Error de conexión", { id: toastId });
     } finally {
       setUpdating(false);
     }
@@ -290,17 +310,19 @@ export default function AdminOrderDetail({ params }: { params: { id: string } })
           <Card>
             <h3>Productos</h3>
             <ItemsList>
-              {order.items.map(item => (
+              {order.items.map((item) => (
                 <Item key={item.id}>
-                  <SafeImage 
-                    src={item.product?.imageUrls?.[0] || '/placeholder.jpg'} 
-                    alt={item.product?.name || 'Producto'}
+                  <SafeImage
+                    src={item.product?.imageUrls?.[0] || "/placeholder.jpg"}
+                    alt={item.product?.name || "Producto"}
                     width={70}
                     height={70}
-                    style={{ objectFit: 'cover', borderRadius: 10 }}
+                    style={{ objectFit: "cover", borderRadius: 10 }}
                   />
                   <div className="details">
-                    <div className="name">{item.product?.name || 'Producto no disponible'}</div>
+                    <div className="name">
+                      {item.product?.name || "Producto no disponible"}
+                    </div>
                     <div className="qty">Cantidad: {item.quantity}</div>
                   </div>
                   <div className="price">${item.price.toFixed(2)}</div>
@@ -318,19 +340,73 @@ export default function AdminOrderDetail({ params }: { params: { id: string } })
         <div>
           <Card style={{ marginBottom: 25 }}>
             <h3>Estado del Pedido</h3>
-            <StatusSelector value={status} onChange={e => setStatus(e.target.value)}>
-              <option value="PENDING">Pendiente</option>
-              <option value="PAID">Pagado</option>
+
+            {order.status === "PENDING" && (
+              <div
+                style={{
+                  background: "#fff8e1",
+                  border: "1px solid #ffe082",
+                  borderRadius: 12,
+                  padding: "14px 16px",
+                  marginBottom: 18,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 12,
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontWeight: 800,
+                      fontSize: "0.88rem",
+                      color: "#e65100",
+                    }}
+                  >
+                    Pendiente de pago
+                  </div>
+                  <div style={{ fontSize: "0.78rem", color: "#bf360c" }}>
+                    Confirma cuando recibas el pago
+                  </div>
+                </div>
+                <UpdateButton
+                  style={{
+                    width: "auto",
+                    padding: "10px 18px",
+                    background: "#2e7d32",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    fontSize: "0.85rem",
+                  }}
+                  onClick={() => {
+                    setStatus("PAID");
+                    handleStatusUpdate();
+                  }}
+                  disabled={updating}
+                >
+                  <BadgeCheck size={16} />
+                  {updating ? "..." : "Confirmar Pago"}
+                </UpdateButton>
+              </div>
+            )}
+
+            <StatusSelector
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="PENDING">Pendiente de Pago</option>
+              <option value="PAID">Pagado ✓</option>
               <option value="PROCESSING">En Proceso</option>
               <option value="SHIPPED">Enviado</option>
               <option value="DELIVERED">Entregado</option>
               <option value="CANCELLED">Cancelado</option>
             </StatusSelector>
-            <UpdateButton 
+            <UpdateButton
               onClick={handleStatusUpdate}
               disabled={updating || status === order.status}
             >
-              {updating ? 'Actualizando...' : 'Actualizar Estado'}
+              {updating ? "Actualizando..." : "Actualizar Estado"}
             </UpdateButton>
           </Card>
 
@@ -338,15 +414,21 @@ export default function AdminOrderDetail({ params }: { params: { id: string } })
             <h3>Información del Cliente</h3>
             <InfoRow>
               <span className="label">Nombre:</span>
-              <span className="value">{order.user?.name || order.customerName || 'N/A'}</span>
+              <span className="value">
+                {order.user?.name || order.customerName || "N/A"}
+              </span>
             </InfoRow>
             <InfoRow>
               <span className="label">Email:</span>
-              <span className="value">{order.user?.email || order.customerEmail || 'N/A'}</span>
+              <span className="value">
+                {order.user?.email || order.customerEmail || "N/A"}
+              </span>
             </InfoRow>
             <InfoRow>
               <span className="label">Teléfono:</span>
-              <span className="value">{order.user?.phone || order.customerPhone || 'N/A'}</span>
+              <span className="value">
+                {order.user?.phone || order.customerPhone || "N/A"}
+              </span>
             </InfoRow>
           </Card>
 
@@ -355,18 +437,23 @@ export default function AdminOrderDetail({ params }: { params: { id: string } })
             <InfoRow>
               <span className="label">Fecha:</span>
               <span className="value">
-                {new Date(order.createdAt).toLocaleDateString('es-ES', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
+                {new Date(order.createdAt).toLocaleDateString("es-ES", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </span>
             </InfoRow>
             <InfoRow>
               <span className="label">Items:</span>
-              <span className="value">{order.items.reduce((sum: number, i: any) => sum + i.quantity, 0)}</span>
+              <span className="value">
+                {order.items.reduce(
+                  (sum: number, i: any) => sum + i.quantity,
+                  0,
+                )}
+              </span>
             </InfoRow>
           </Card>
         </div>

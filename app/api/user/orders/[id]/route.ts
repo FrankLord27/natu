@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/user/orders/[id]
@@ -9,21 +9,21 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user || (session.user as any).userType !== 'customer') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session?.user || (session.user as any).userType !== "customer") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
 
     const order = await prisma.order.findUnique({
-      where: { 
+      where: {
         id: params.id,
-        userId: userId // Seguridad: Solo el dueño del pedido puede verlo
+        userId: userId, // Seguridad: Solo el dueño del pedido puede verlo
       },
       include: {
         items: {
@@ -41,7 +41,10 @@ export async function GET(
     });
 
     if (!order) {
-      return NextResponse.json({ error: 'Pedido no encontrado' }, { status: 404 });
+      return NextResponse.json(
+        { error: "Pedido no encontrado" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({
@@ -49,7 +52,10 @@ export async function GET(
       order,
     });
   } catch (error: any) {
-    console.error('Get user order detail error:', error);
-    return NextResponse.json({ error: 'Error al obtener detalles del pedido' }, { status: 500 });
+    console.error("Get user order detail error:", error);
+    return NextResponse.json(
+      { error: "Error al obtener detalles del pedido" },
+      { status: 500 },
+    );
   }
 }

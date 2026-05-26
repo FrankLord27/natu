@@ -1,4 +1,3 @@
-
 interface InvoiceEmailProps {
   orderId: string;
   customerName: string;
@@ -16,14 +15,18 @@ export const getInvoiceEmailHtml = ({
   customerName,
   total,
   items,
-  invoiceUrl
+  invoiceUrl,
 }: InvoiceEmailProps) => {
-  const itemsHtml = items.map((item, index) => `
-    <tr style="border-bottom: ${index < items.length - 1 ? '1px solid #f5f5f5' : 'none'}">
+  const itemsHtml = items
+    .map(
+      (item, index) => `
+    <tr style="border-bottom: ${index < items.length - 1 ? "1px solid #f5f5f5" : "none"}">
       <td style="padding: 10px 0">${item.name} <span style="color: #888">x${item.quantity}</span></td>
       <td style="padding: 10px 0; text-align: right">$${(item.price * item.quantity).toFixed(2)}</td>
     </tr>
-  `).join('');
+  `,
+    )
+    .join("");
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
@@ -58,7 +61,9 @@ export const getInvoiceEmailHtml = ({
           </table>
         </div>
 
-        ${invoiceUrl ? `
+        ${
+          invoiceUrl
+            ? `
           <div style="text-align: center; margin: 30px 0;">
             <a
               href="${invoiceUrl}"
@@ -75,7 +80,9 @@ export const getInvoiceEmailHtml = ({
               Descargar Factura PDF
             </a>
           </div>
-        ` : ''}
+        `
+            : ""
+        }
 
         <p style="font-size: 14px; color: #666;">
           Si tienes alguna pregunta sobre tu pedido, no dudes responder a este correo.

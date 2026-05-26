@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/user/orders
@@ -13,8 +13,8 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user || (session.user as any).userType !== 'customer') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session?.user || (session.user as any).userType !== "customer") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     const userId = (session.user as any).id;
@@ -34,7 +34,7 @@ export async function GET() {
           },
         },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     return NextResponse.json({
@@ -42,7 +42,10 @@ export async function GET() {
       orders,
     });
   } catch (error: any) {
-    console.error('Get orders error:', error);
-    return NextResponse.json({ error: 'Error al obtener pedidos' }, { status: 500 });
+    console.error("Get orders error:", error);
+    return NextResponse.json(
+      { error: "Error al obtener pedidos" },
+      { status: 500 },
+    );
   }
 }

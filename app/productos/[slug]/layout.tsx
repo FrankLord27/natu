@@ -1,23 +1,27 @@
-import { Metadata } from 'next';
-import { getProductBySlug } from '@/lib/actions';
+import { Metadata } from "next";
+import { getProductBySlug } from "@/lib/actions";
 
 interface Props {
   params: { slug: string };
   children: React.ReactNode;
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
   const result = await getProductBySlug(params.slug);
-  
+
   if (!result.success || !result.data) {
     return {
-      title: 'Producto no encontrado | NaturaJM',
-      description: 'El producto que buscas no está disponible actualmente.'
+      title: "Producto no encontrado | NaturaJM",
+      description: "El producto que buscas no está disponible actualmente.",
     };
   }
 
   const product = result.data;
-  const description = product.description || '';
+  const description = product.description || "";
 
   return {
     title: `${product.name} | NaturaJM`,

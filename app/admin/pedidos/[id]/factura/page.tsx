@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
-import { Printer, Download, ArrowLeft, Mail, Phone, Globe } from 'lucide-react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import React, { useState, useEffect, useCallback } from "react";
+import styled from "styled-components";
+import { Printer, Download, ArrowLeft, Mail, Phone, Globe } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 
 const Page = styled.div`
   background: #f5f5f5;
@@ -42,7 +42,9 @@ const BackBtn = styled(Link)`
   font-weight: 700;
   font-size: 0.9rem;
   transition: 0.3s;
-  &:hover { color: #1a1a1a; }
+  &:hover {
+    color: #1a1a1a;
+  }
 `;
 
 const ActionButtons = styled.div`
@@ -60,18 +62,21 @@ const Button = styled.button<{ $primary?: boolean }>`
   align-items: center;
   gap: 8px;
   border: none;
-  background: ${p => p.$primary ? p.theme.colors.primary : 'white'};
-  color: ${p => p.$primary ? 'white' : '#1a1a1a'};
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  background: ${(p) => (p.$primary ? p.theme.colors.primary : "white")};
+  color: ${(p) => (p.$primary ? "white" : "#1a1a1a")};
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   transition: 0.3s;
-  &:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  }
 `;
 
 const InvoicePaper = styled.div`
   background: white;
   padding: 80px;
   border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.03);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
   position: relative;
   overflow: hidden;
 
@@ -91,15 +96,39 @@ const BrandHeader = styled.div`
   margin-bottom: 60px;
 
   .brand {
-    h2 { font-size: 2rem; font-weight: 950; color: #1a1a1a; margin-bottom: 15px; }
-    p { color: #666; font-size: 0.9rem; line-height: 1.6; max-width: 250px; }
+    h2 {
+      font-size: 2rem;
+      font-weight: 950;
+      color: #1a1a1a;
+      margin-bottom: 15px;
+    }
+    p {
+      color: #666;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      max-width: 250px;
+    }
   }
 
   .meta {
     text-align: right;
-    h1 { font-size: 2.5rem; font-weight: 900; color: #eee; text-transform: uppercase; margin-bottom: 10px; }
-    .number { font-size: 1.1rem; font-weight: 800; color: #1a1a1a; }
-    .date { color: #888; font-size: 0.9rem; margin-top: 5px; }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: #eee;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .number {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+    .date {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
   }
 `;
 
@@ -109,9 +138,25 @@ const BillingGrid = styled.div`
   gap: 40px;
   margin-bottom: 60px;
 
-  h4 { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #999; letter-spacing: 1px; margin-bottom: 15px; }
-  .name { font-size: 1.1rem; font-weight: 800; color: #1a1a1a; margin-bottom: 5px; }
-  .detail { color: #666; font-size: 0.9rem; line-height: 1.6; }
+  h4 {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #999;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+  }
+  .name {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1a1a1a;
+    margin-bottom: 5px;
+  }
+  .detail {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
 `;
 
 const Table = styled.table`
@@ -119,12 +164,35 @@ const Table = styled.table`
   border-collapse: collapse;
   margin-bottom: 40px;
 
-  th { text-align: left; padding: 15px 0; border-bottom: 2px solid #f0f0f0; font-size: 0.75rem; text-transform: uppercase; color: #999; font-weight: 800; }
-  td { padding: 25px 0; border-bottom: 1px solid #f5f5f5; font-size: 0.95rem; font-weight: 600; color: #333; }
-  
-  .qty { width: 80px; }
-  .price { width: 120px; text-align: right; }
-  .total { width: 120px; text-align: right; font-weight: 800; }
+  th {
+    text-align: left;
+    padding: 15px 0;
+    border-bottom: 2px solid #f0f0f0;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    color: #999;
+    font-weight: 800;
+  }
+  td {
+    padding: 25px 0;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .qty {
+    width: 80px;
+  }
+  .price {
+    width: 120px;
+    text-align: right;
+  }
+  .total {
+    width: 120px;
+    text-align: right;
+    font-weight: 800;
+  }
 `;
 
 const Totals = styled.div`
@@ -165,8 +233,6 @@ export default function FacturaPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-
-
   const fetchInvoice = useCallback(async () => {
     try {
       const res = await fetch(`/api/admin/orders/${params.id}`);
@@ -183,8 +249,10 @@ export default function FacturaPage() {
     fetchInvoice();
   }, [fetchInvoice]);
 
-  if (loading) return <Page style={{ background: 'white' }}>Cargando factura...</Page>;
-  if (!data) return <Page style={{ background: 'white' }}>Pedido no encontrado</Page>;
+  if (loading)
+    return <Page style={{ background: "white" }}>Cargando factura...</Page>;
+  if (!data)
+    return <Page style={{ background: "white" }}>Pedido no encontrado</Page>;
 
   const subtotal = data.total / 1.18;
   const itbis = data.total - subtotal;
@@ -197,15 +265,28 @@ export default function FacturaPage() {
             <ArrowLeft size={18} /> Volver al Pedido
           </BackBtn>
           <ActionButtons>
-            <Button onClick={() => window.print()}><Printer size={18} /> Imprimir</Button>
-            <Button $primary><Download size={18} /> Descargar PDF</Button>
+            <Button onClick={() => window.print()}>
+              <Printer size={18} /> Imprimir
+            </Button>
+            <Button $primary>
+              <Download size={18} /> Descargar PDF
+            </Button>
           </ActionButtons>
         </Actions>
 
         <InvoicePaper id="invoice-paper">
           <BrandHeader>
             <div className="brand">
-              <div style={{ color: '#7BB32E', fontSize: '1.5rem', fontWeight: 950, marginBottom: 10 }}>NaturaJM</div>
+              <div
+                style={{
+                  color: "#7BB32E",
+                  fontSize: "1.5rem",
+                  fontWeight: 950,
+                  marginBottom: 10,
+                }}
+              >
+                NaturaJM
+              </div>
               <h2>NaturaJM Elite</h2>
               <p>📍 Calle Principal #123, Santo Domingo, Rep. Dom.</p>
               <p>📞 +1 (809) 123-4567</p>
@@ -213,25 +294,45 @@ export default function FacturaPage() {
             </div>
             <div className="meta">
               <h1>Factura</h1>
-              <div className="number">#FAC-{new Date(data.createdAt).getFullYear()}-{data.id.slice(-4).toUpperCase()}</div>
-              <div className="date">{new Date(data.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+              <div className="number">
+                #FAC-{new Date(data.createdAt).getFullYear()}-
+                {data.id.slice(-4).toUpperCase()}
+              </div>
+              <div className="date">
+                {new Date(data.createdAt).toLocaleDateString("es-ES", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}
+              </div>
             </div>
           </BrandHeader>
 
           <BillingGrid>
             <div>
               <h4>Facturar a</h4>
-              <div className="name">{data.user?.name || data.customerName || 'Cliente Particular'}</div>
-              <div className="detail">{data.user?.email || data.customerEmail || 'Sin email'}</div>
-              <div className="detail">{data.user?.phone || data.customerPhone || 'Sin teléfono'}</div>
+              <div className="name">
+                {data.user?.name || data.customerName || "Cliente Particular"}
+              </div>
+              <div className="detail">
+                {data.user?.email || data.customerEmail || "Sin email"}
+              </div>
+              <div className="detail">
+                {data.user?.phone || data.customerPhone || "Sin teléfono"}
+              </div>
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div style={{ textAlign: "right" }}>
               <h4>Estado del Pago</h4>
-              <div className="name" style={{ color: data.status === 'PAID' ? '#7BB32E' : '#f44336' }}>
-                {data.status === 'PAID' ? 'PAGADO' : 'PENDIENTE'}
+              <div
+                className="name"
+                style={{
+                  color: data.status === "PAID" ? "#7BB32E" : "#f44336",
+                }}
+              >
+                {data.status === "PAID" ? "PAGADO" : "PENDIENTE"}
               </div>
               <div className="detail">Método: {data.paymentMethod}</div>
-              <div className="detail">Ref: {data.paymentId || 'N/A'}</div>
+              <div className="detail">Ref: {data.paymentId || "N/A"}</div>
             </div>
           </BillingGrid>
 
@@ -247,10 +348,12 @@ export default function FacturaPage() {
             <tbody>
               {data.items.map((item: any) => (
                 <tr key={item.id}>
-                  <td>{item.product?.name || 'Producto no disponible'}</td>
+                  <td>{item.product?.name || "Producto no disponible"}</td>
                   <td className="qty">{item.quantity}</td>
                   <td className="price">${item.price.toFixed(2)}</td>
-                  <td className="total">${(item.quantity * item.price).toFixed(2)}</td>
+                  <td className="total">
+                    ${(item.quantity * item.price).toFixed(2)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -273,7 +376,10 @@ export default function FacturaPage() {
 
           <Footer>
             <p>Gracias por elegir NaturaJM para su bienestar integral.</p>
-            <p>Esta es una factura generada electrónicamente y es válida para fines contables internos.</p>
+            <p>
+              Esta es una factura generada electrónicamente y es válida para
+              fines contables internos.
+            </p>
           </Footer>
         </InvoicePaper>
       </Container>

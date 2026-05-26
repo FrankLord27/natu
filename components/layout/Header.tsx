@@ -1,14 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import Link from 'next/link';
-import { ShoppingBag, Heart, Menu, X, ClipboardList, Search, User, LogOut, Settings } from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
-import { useCart } from '@/context/CartContext';
-import { useWishlist } from '@/context/WishlistContext';
-import { WishlistModal } from '@/components/wishlist/WishlistModal';
-import { OrderHistoryModal } from '@/components/orders/OrderHistoryModal';
+import React, { useState } from "react";
+import styled from "styled-components";
+import Link from "next/link";
+import {
+  ShoppingBag,
+  Heart,
+  Menu,
+  X,
+  ClipboardList,
+  Search,
+  User,
+  LogOut,
+  Settings,
+} from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import { useCart } from "@/context/CartContext";
+import { useWishlist } from "@/context/WishlistContext";
+import { WishlistModal } from "@/components/wishlist/WishlistModal";
+import { OrderHistoryModal } from "@/components/orders/OrderHistoryModal";
 
 const HeaderWrapper = styled.header`
   position: sticky;
@@ -57,7 +67,8 @@ const NavLinks = styled.div<{ $isOpen: boolean }>`
     flex-direction: column;
     justify-content: center;
     gap: 30px;
-    transform: ${({ $isOpen }) => ($isOpen ? 'translateX(0)' : 'translateX(100%)')};
+    transform: ${({ $isOpen }) =>
+      $isOpen ? "translateX(0)" : "translateX(100%)"};
     transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2000;
     padding: 20px;
@@ -74,7 +85,7 @@ const NavLink = styled(Link)`
   position: relative;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -4px;
     left: 0;
@@ -86,7 +97,9 @@ const NavLink = styled(Link)`
 
   &:hover {
     color: ${({ theme }) => theme.colors.primary};
-    &::after { width: 100%; }
+    &::after {
+      width: 100%;
+    }
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -204,11 +217,12 @@ const Dropdown = styled.div<{ $isOpen: boolean }>`
   right: 0;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   opacity: ${({ $isOpen }) => ($isOpen ? 1 : 0)};
-  visibility: ${({ $isOpen }) => ($isOpen ? 'visible' : 'hidden')};
-  transform: ${({ $isOpen }) => ($isOpen ? 'translateY(0)' : 'translateY(-10px)')};
+  visibility: ${({ $isOpen }) => ($isOpen ? "visible" : "hidden")};
+  transform: ${({ $isOpen }) =>
+    $isOpen ? "translateY(0)" : "translateY(-10px)"};
   transition: all 0.3s ease;
   overflow: hidden;
   z-index: 1001;
@@ -262,26 +276,36 @@ export const Header = () => {
   const { wishlistCount } = useWishlist();
   const { data: session, status } = useSession();
 
-  const isAuthenticated = status === 'authenticated';
+  const isAuthenticated = status === "authenticated";
   const userType = (session?.user as any)?.userType;
-  const userName = session?.user?.name || 'Usuario';
+  const userName = session?.user?.name || "Usuario";
   const userInitial = userName.charAt(0).toUpperCase();
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/' });
+    signOut({ callbackUrl: "/" });
   };
 
   return (
     <>
       <HeaderWrapper>
         <Nav>
-          <Logo href="/">Natura<span>JM</span></Logo>
+          <Logo href="/">
+            Natura<span>JM</span>
+          </Logo>
 
           <NavLinks $isOpen={menuOpen}>
-            <NavLink href="/" onClick={() => setMenuOpen(false)}>Inicio</NavLink>
-            <NavLink href="/tienda" onClick={() => setMenuOpen(false)}>Tienda</NavLink>
-            <NavLink href="/nosotros" onClick={() => setMenuOpen(false)}>Nosotros</NavLink>
-            <NavLink href="/contacto" onClick={() => setMenuOpen(false)}>Contacto</NavLink>
+            <NavLink href="/" onClick={() => setMenuOpen(false)}>
+              Inicio
+            </NavLink>
+            <NavLink href="/tienda" onClick={() => setMenuOpen(false)}>
+              Tienda
+            </NavLink>
+            <NavLink href="/nosotros" onClick={() => setMenuOpen(false)}>
+              Nosotros
+            </NavLink>
+            <NavLink href="/contacto" onClick={() => setMenuOpen(false)}>
+              Contacto
+            </NavLink>
           </NavLinks>
 
           <Actions>
@@ -303,31 +327,46 @@ export const Header = () => {
               <UserMenu>
                 <UserButton onClick={() => setUserMenuOpen(!userMenuOpen)}>
                   <User size={18} />
-                  <span>{userName.split(' ')[0]}</span>
+                  <span>{userName.split(" ")[0]}</span>
                 </UserButton>
                 <Dropdown $isOpen={userMenuOpen}>
-                  {userType === 'customer' && (
+                  {userType === "customer" && (
                     <>
-                      <DropdownItem href="/mi-cuenta" onClick={() => setUserMenuOpen(false)}>
+                      <DropdownItem
+                        href="/mi-cuenta"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
                         <User size={16} />
                         Mi Cuenta
                       </DropdownItem>
-                      <DropdownItem href="/mi-cuenta/pedidos" onClick={() => setUserMenuOpen(false)}>
+                      <DropdownItem
+                        href="/mi-cuenta/pedidos"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
                         <ClipboardList size={16} />
                         Pedidos
                       </DropdownItem>
-                      <DropdownItem href="/mi-cuenta/favoritos" onClick={() => setUserMenuOpen(false)}>
+                      <DropdownItem
+                        href="/mi-cuenta/favoritos"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
                         <Heart size={16} />
                         Favoritos
                       </DropdownItem>
-                      <DropdownItem href="/mi-cuenta/perfil" onClick={() => setUserMenuOpen(false)}>
+                      <DropdownItem
+                        href="/mi-cuenta/perfil"
+                        onClick={() => setUserMenuOpen(false)}
+                      >
                         <Settings size={16} />
                         Configuración
                       </DropdownItem>
                     </>
                   )}
-                  {userType === 'admin' && (
-                    <DropdownItem href="/admin" onClick={() => setUserMenuOpen(false)}>
+                  {userType === "admin" && (
+                    <DropdownItem
+                      href="/admin"
+                      onClick={() => setUserMenuOpen(false)}
+                    >
                       <Settings size={16} />
                       Panel Admin
                     </DropdownItem>
@@ -347,8 +386,14 @@ export const Header = () => {
         </Nav>
       </HeaderWrapper>
 
-      <WishlistModal isOpen={wishlistOpen} onClose={() => setWishlistOpen(false)} />
-      <OrderHistoryModal isOpen={ordersOpen} onClose={() => setOrdersOpen(false)} />
+      <WishlistModal
+        isOpen={wishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+      />
+      <OrderHistoryModal
+        isOpen={ordersOpen}
+        onClose={() => setOrdersOpen(false)}
+      />
     </>
   );
 };

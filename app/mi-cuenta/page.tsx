@@ -1,16 +1,24 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { motion } from 'framer-motion';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { Package, Heart, User, Settings, LogOut, ShoppingBag, Clock } from 'lucide-react';
-import Link from 'next/link';
+import React, { useState, useEffect } from "react";
+import styled from "styled-components";
+import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import {
+  Package,
+  Heart,
+  User,
+  Settings,
+  LogOut,
+  ShoppingBag,
+  Clock,
+} from "lucide-react";
+import Link from "next/link";
 
 const Page = styled.div`
   min-height: 100vh;
-  background: ${p => p.theme.colors.background};
+  background: ${(p) => p.theme.colors.background};
   padding: 60px 5%;
 `;
 
@@ -24,11 +32,11 @@ const Header = styled.div`
   h1 {
     font-size: 2.2rem;
     font-weight: 900;
-    color: ${p => p.theme.colors.text};
+    color: ${(p) => p.theme.colors.text};
     margin-bottom: 8px;
   }
   p {
-    color: ${p => p.theme.colors.textLight};
+    color: ${(p) => p.theme.colors.textLight};
     font-size: 1.1rem;
   }
 `;
@@ -44,7 +52,7 @@ const Card = styled(motion(Link))`
   background: white;
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -53,7 +61,7 @@ const Card = styled(motion(Link))`
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
   }
 `;
 
@@ -61,7 +69,7 @@ const IconBox = styled.div<{ $color: string }>`
   width: 60px;
   height: 60px;
   border-radius: 14px;
-  background: ${p => p.$color};
+  background: ${(p) => p.$color};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,12 +80,12 @@ const CardContent = styled.div`
   h3 {
     font-size: 1.1rem;
     font-weight: 700;
-    color: ${p => p.theme.colors.text};
+    color: ${(p) => p.theme.colors.text};
     margin-bottom: 5px;
   }
   p {
     font-size: 0.9rem;
-    color: ${p => p.theme.colors.textLight};
+    color: ${(p) => p.theme.colors.textLight};
   }
 `;
 
@@ -92,18 +100,18 @@ const StatCard = styled.div`
   background: white;
   padding: 25px;
   border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 
   .value {
     font-size: 2rem;
     font-weight: 900;
-    color: ${p => p.theme.colors.primary};
+    color: ${(p) => p.theme.colors.primary};
     margin-bottom: 5px;
   }
 
   .label {
     font-size: 0.85rem;
-    color: ${p => p.theme.colors.textLight};
+    color: ${(p) => p.theme.colors.textLight};
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -114,13 +122,13 @@ const QuickActions = styled.div`
   background: white;
   padding: 30px;
   border-radius: 16px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 
   h2 {
     font-size: 1.3rem;
     font-weight: 800;
     margin-bottom: 20px;
-    color: ${p => p.theme.colors.text};
+    color: ${(p) => p.theme.colors.text};
   }
 `;
 
@@ -135,16 +143,16 @@ const ActionButton = styled(Link)`
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border: 2px solid ${p => p.theme.colors.border};
+  border: 2px solid ${(p) => p.theme.colors.border};
   border-radius: 12px;
   text-decoration: none;
-  color: ${p => p.theme.colors.text};
+  color: ${(p) => p.theme.colors.text};
   font-weight: 600;
   transition: all 0.3s;
 
   &:hover {
-    border-color: ${p => p.theme.colors.primary};
-    background: ${p => p.theme.colors.primaryPale};
+    border-color: ${(p) => p.theme.colors.primary};
+    background: ${(p) => p.theme.colors.primaryPale};
   }
 
   .left {
@@ -160,20 +168,24 @@ export default function MiCuenta() {
   const [stats, setStats] = useState({ orders: 0, favorites: 0, reviews: 0 });
 
   useEffect(() => {
-    if (status === 'authenticated' && session?.user) {
+    if (status === "authenticated" && session?.user) {
       // Fetch user stats
-      fetch('/api/user/stats')
-        .then(res => res.json())
-        .then(data => setStats(data))
-        .catch(err => console.error(err));
+      fetch("/api/user/stats")
+        .then((res) => res.json())
+        .then((data) => setStats(data))
+        .catch((err) => console.error(err));
     }
   }, [status, session]);
 
-  if (status === 'loading') {
-    return <Page><Container>Cargando...</Container></Page>;
+  if (status === "loading") {
+    return (
+      <Page>
+        <Container>Cargando...</Container>
+      </Page>
+    );
   }
 
-  const userName = session?.user?.name || 'Usuario';
+  const userName = session?.user?.name || "Usuario";
 
   return (
     <Page>

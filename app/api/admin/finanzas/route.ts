@@ -88,11 +88,17 @@ export async function GET() {
       select: { createdAt: true, total: true },
     });
 
-    const dailyStats = last30DaysOrders.reduce((acc: Record<string, number>, order: { createdAt: Date, total: number }) => {
-      const date = order.createdAt.toISOString().split("T")[0];
-      acc[date] = (acc[date] || 0) + order.total;
-      return acc;
-    }, {});
+    const dailyStats = last30DaysOrders.reduce(
+      (
+        acc: Record<string, number>,
+        order: { createdAt: Date; total: number },
+      ) => {
+        const date = order.createdAt.toISOString().split("T")[0];
+        acc[date] = (acc[date] || 0) + order.total;
+        return acc;
+      },
+      {},
+    );
 
     const chartData = Object.keys(dailyStats)
       .sort()

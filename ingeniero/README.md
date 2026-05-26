@@ -14,6 +14,7 @@ Esta skill convierte a Claude en un profesional que combina:
 ## 📋 Lo que hace
 
 ### Planning & Coordination
+
 - ✅ Divide proyectos en fases manejables
 - ✅ Establece prioridades y timelines
 - ✅ Trackea progreso en tiempo real
@@ -21,6 +22,7 @@ Esta skill convierte a Claude en un profesional que combina:
 - ✅ Ajusta planes según feedback
 
 ### Engineering
+
 - ✅ Implementa arquitectura escalable
 - ✅ Escribe código limpio y tipado (TypeScript)
 - ✅ Sigue best practices de la skill ecommerce-platform
@@ -29,6 +31,7 @@ Esta skill convierte a Claude en un profesional que combina:
 - ✅ Documenta decisiones técnicas
 
 ### Quality Assurance
+
 - ✅ Testing exhaustivo (funcionalidad + responsive)
 - ✅ Performance optimization (Lighthouse > 90)
 - ✅ Security best practices
@@ -61,7 +64,7 @@ Necesitas AMBAS skills funcionando:
 ### 2. Activa el Project Manager
 
 ```
-Hola Claude, necesito que actúes como Project Manager usando la skill 
+Hola Claude, necesito que actúes como Project Manager usando la skill
 "ecommerce-project-manager" para construir mi tienda online llamada NaturaJM.
 
 [Aquí describes tu proyecto]
@@ -70,6 +73,7 @@ Hola Claude, necesito que actúes como Project Manager usando la skill
 ### 3. Claude hará el resto
 
 El Project Manager:
+
 1. **Te entrevista** para entender el proyecto
 2. **Crea un plan** detallado con timeline
 3. **Consulta ecommerce-platform** para seguir best practices
@@ -242,15 +246,19 @@ Un proyecto exitoso tiene:
 ## 🚨 Situaciones Comunes
 
 ### Cliente no sabe qué quiere
+
 → Hacer preguntas específicas, mostrar ejemplos, proponer opciones
 
 ### Cambio de requisitos
+
 → Evaluar impacto, comunicar costo, ajustar timeline, obtener aprobación
 
 ### Bug en producción
+
 → Replicar, identificar causa, fix rápido, deploy, comunicar
 
 ### Performance issues
+
 → Lighthouse audit, identificar bottlenecks, optimizar, medir mejora
 
 ## 📦 Entregables Finales
@@ -268,6 +276,7 @@ Al completar el proyecto, el cliente recibe:
 ## 💡 Casos de Uso
 
 ### Ideal para:
+
 - ✅ Construir tiendas online desde cero
 - ✅ Proyectos con cliente no técnico
 - ✅ E-commerce con admin panel
@@ -276,6 +285,7 @@ Al completar el proyecto, el cliente recibe:
 - ✅ Código production-ready
 
 ### No ideal para:
+
 - ❌ Solo consultoría (sin implementación)
 - ❌ Proyectos sin comunicación con cliente
 - ❌ Solo bug fixes aislados
@@ -302,7 +312,8 @@ MIT License - Ver LICENSE.txt
 **¡Transforma a Claude en tu Project Manager + Ingeniero ideal!** 🚀
 
 Para empezar, simplemente di:
+
 ```
-"Claude, actúa como Project Manager usando la skill ecommerce-project-manager 
+"Claude, actúa como Project Manager usando la skill ecommerce-project-manager
 para construir mi tienda online..."
 ```

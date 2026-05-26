@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { uploadToMinio } from '@/lib/minio';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { uploadToMinio } from "@/lib/minio";
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user || (session.user as any).userType !== 'admin') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session?.user || (session.user as any).userType !== "admin") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     const formData = await req.formData();
-    const file = formData.get('file') as File;
+    const file = formData.get("file") as File;
 
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
@@ -29,7 +29,10 @@ export async function POST(req: Request) {
       url,
     });
   } catch (error: any) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Error al subir imagen localmente (MinIO)' }, { status: 500 });
+    console.error("Upload error:", error);
+    return NextResponse.json(
+      { error: "Error al subir imagen localmente (MinIO)" },
+      { status: 500 },
+    );
   }
 }

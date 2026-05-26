@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import React from 'react';
-import styled from 'styled-components';
-import CheckoutWizard from '@/components/checkout/CheckoutWizard';
+import React from "react";
+import styled from "styled-components";
+import CheckoutWizard from "@/components/checkout/CheckoutWizard";
 
 const Page = styled.div`
   min-height: 100vh;
@@ -20,14 +20,14 @@ const Container = styled.div`
 const Header = styled.div`
   text-align: center;
   margin-bottom: 40px;
-  
+
   h1 {
     font-size: 2.5rem;
     font-weight: 900;
     color: #333;
     margin-bottom: 10px;
   }
-  
+
   p {
     color: #666;
     font-size: 1.1rem;

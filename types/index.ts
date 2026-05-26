@@ -82,7 +82,14 @@ export interface Order {
   total: number;
   totalPrice?: number;
   date: string;
-  status: 'pending' | 'paid' | 'sent' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  status:
+    | "pending"
+    | "paid"
+    | "sent"
+    | "processing"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
   paymentMethod?: string;
   paymentId?: string;
   customerName?: string;
@@ -94,7 +101,7 @@ export interface AdminUser {
   id: string;
   email: string;
   name?: string | null;
-  role: 'ADMIN' | 'SUPERADMIN';
+  role: "ADMIN" | "SUPERADMIN";
 }
 
 export interface ContactSubmission {

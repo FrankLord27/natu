@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export async function POST(req: Request) {
   try {
@@ -8,8 +8,8 @@ export async function POST(req: Request) {
 
     if (!token || !password) {
       return NextResponse.json(
-        { error: 'Token y nueva contraseña son requeridos' },
-        { status: 400 }
+        { error: "Token y nueva contraseña son requeridos" },
+        { status: 400 },
       );
     }
 
@@ -25,8 +25,8 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Token inválido o expirado' },
-        { status: 400 }
+        { error: "Token inválido o expirado" },
+        { status: 400 },
       );
     }
 
@@ -45,10 +45,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error en reset-password:', error);
+    console.error("Error en reset-password:", error);
     return NextResponse.json(
-      { error: 'Ocurrió un error al restablecer la contraseña' },
-      { status: 500 }
+      { error: "Ocurrió un error al restablecer la contraseña" },
+      { status: 500 },
     );
   }
 }

@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import React from 'react';
-import styled from 'styled-components';
-import Link from 'next/link';
-import { Leaf, Mail, Phone, MapPin, Instagram, Facebook } from 'lucide-react';
+import React from "react";
+import styled from "styled-components";
+import Link from "next/link";
+import { Leaf, Mail, Phone, MapPin, Instagram, Facebook } from "lucide-react";
 
 const FooterWrapper = styled.footer`
-  background: #1A1A1A;
+  background: #1a1a1a;
   color: #ccc;
   padding: 80px 5% 30px;
 `;
@@ -33,7 +33,10 @@ const FooterBrand = styled.div`
     font-weight: 900;
     color: ${({ theme }) => theme.colors.primary};
     margin-bottom: 15px;
-    span { color: white; font-weight: 400; }
+    span {
+      color: white;
+      font-weight: 400;
+    }
   }
   p {
     font-size: 0.9rem;
@@ -63,7 +66,10 @@ const FooterSection = styled.div`
     font-size: 0.9rem;
     opacity: 0.6;
     transition: all 0.3s ease;
-    &:hover { opacity: 1; color: ${({ theme }) => theme.colors.primary}; }
+    &:hover {
+      opacity: 1;
+      color: ${({ theme }) => theme.colors.primary};
+    }
   }
 `;
 
@@ -115,28 +121,28 @@ const FooterBottom = styled.div`
 `;
 
 export const Footer = () => {
-  const [email, setEmail] = React.useState('');
+  const [email, setEmail] = React.useState("");
   const [loading, setLoading] = React.useState(false);
-  const [msg, setMsg] = React.useState('');
+  const [msg, setMsg] = React.useState("");
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setLoading(true);
-    setMsg('');
-    
+    setMsg("");
+
     try {
-        const { subscribeToNewsletter } = await import('@/lib/actions');
-        const res = await subscribeToNewsletter(email, 'footer');
-        
-        if (res.success) {
-        setMsg(res.message || '¡Gracias! Te has suscrito.');
-        setEmail('');
-        } else {
-        setMsg(res.error || 'Ocurrió un error.');
-        }
+      const { subscribeToNewsletter } = await import("@/lib/actions");
+      const res = await subscribeToNewsletter(email, "footer");
+
+      if (res.success) {
+        setMsg(res.message || "¡Gracias! Te has suscrito.");
+        setEmail("");
+      } else {
+        setMsg(res.error || "Ocurrió un error.");
+      }
     } catch (err) {
-        setMsg('Error de conexión.');
+      setMsg("Error de conexión.");
     }
     setLoading(false);
   };
@@ -145,59 +151,127 @@ export const Footer = () => {
     <FooterWrapper>
       <FooterGrid>
         <FooterBrand>
-          <h3>Natura<span>JM</span></h3>
-          <p>Productos 100% naturales para tu bienestar. Aceites, harinas y cosméticos de la más alta calidad, directo a tu puerta.</p>
+          <h3>
+            Natura<span>JM</span>
+          </h3>
+          <p>
+            Productos 100% naturales para tu bienestar. Aceites, harinas y
+            cosméticos de la más alta calidad, directo a tu puerta.
+          </p>
           <Socials>
-            <SocialBtn href="https://instagram.com/naturajm" target="_blank" aria-label="Instagram"><Instagram size={18} /></SocialBtn>
-            <SocialBtn href="https://facebook.com/naturajm" target="_blank" aria-label="Facebook"><Facebook size={18} /></SocialBtn>
+            <SocialBtn
+              href="https://instagram.com/naturajm"
+              target="_blank"
+              aria-label="Instagram"
+            >
+              <Instagram size={18} />
+            </SocialBtn>
+            <SocialBtn
+              href="https://facebook.com/naturajm"
+              target="_blank"
+              aria-label="Facebook"
+            >
+              <Facebook size={18} />
+            </SocialBtn>
           </Socials>
         </FooterBrand>
 
         <FooterSection>
           <h4>Tienda</h4>
           <ul>
-            <li><Link href="/tienda">Todos los Productos</Link></li>
-            <li><Link href="/tienda?category=Aceites">Aceites</Link></li>
-            <li><Link href="/tienda?category=Harinas">Harinas</Link></li>
-            <li><Link href="/tienda?category=Cosméticos">Cosméticos</Link></li>
+            <li>
+              <Link href="/tienda">Todos los Productos</Link>
+            </li>
+            <li>
+              <Link href="/tienda?category=Aceites">Aceites</Link>
+            </li>
+            <li>
+              <Link href="/tienda?category=Harinas">Harinas</Link>
+            </li>
+            <li>
+              <Link href="/tienda?category=Cosméticos">Cosméticos</Link>
+            </li>
           </ul>
         </FooterSection>
 
         <FooterSection>
           <h4>Empresa</h4>
           <ul>
-            <li><Link href="/nosotros">Nosotros</Link></li>
-            <li><Link href="/contacto">Contacto</Link></li>
+            <li>
+              <Link href="/nosotros">Nosotros</Link>
+            </li>
+            <li>
+              <Link href="/contacto">Contacto</Link>
+            </li>
           </ul>
         </FooterSection>
 
         <FooterSection>
           <h4>Suscríbete</h4>
-          <p style={{ fontSize: '0.85rem', marginBottom: '15px', color: '#aaa' }}>Recibe ofertas exclusivas y novedades.</p>
-          <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '8px' }}>
-            <input 
-                type="email" 
-                placeholder="Tu correo..." 
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={{ flex: 1, padding: '10px', borderRadius: '4px', border: '1px solid #333', background: '#222', color: 'white' }}
+          <p
+            style={{ fontSize: "0.85rem", marginBottom: "15px", color: "#aaa" }}
+          >
+            Recibe ofertas exclusivas y novedades.
+          </p>
+          <form
+            onSubmit={handleSubscribe}
+            style={{ display: "flex", gap: "8px" }}
+          >
+            <input
+              type="email"
+              placeholder="Tu correo..."
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              style={{
+                flex: 1,
+                padding: "10px",
+                borderRadius: "4px",
+                border: "1px solid #333",
+                background: "#222",
+                color: "white",
+              }}
             />
-            <button 
-                type="submit" 
-                disabled={loading}
-                style={{ padding: '0 15px', borderRadius: '4px', border: 'none', background: '#7BB32E', color: 'white', cursor: 'pointer', fontWeight: 'bold' }}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: "0 15px",
+                borderRadius: "4px",
+                border: "none",
+                background: "#7BB32E",
+                color: "white",
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
             >
-                {loading ? '...' : <Mail size={16} />}
+              {loading ? "..." : <Mail size={16} />}
             </button>
           </form>
-          {msg && <p style={{ marginTop: '10px', fontSize: '0.8rem', color: msg.includes('Error') ? '#ff5252' : '#7BB32E' }}>{msg}</p>}
+          {msg && (
+            <p
+              style={{
+                marginTop: "10px",
+                fontSize: "0.8rem",
+                color: msg.includes("Error") ? "#ff5252" : "#7BB32E",
+              }}
+            >
+              {msg}
+            </p>
+          )}
         </FooterSection>
       </FooterGrid>
 
       <FooterBottom>
-        <span>© {new Date().getFullYear()} NaturaJM V3. Todos los derechos reservados.</span>
-        <span>Hecho con <Leaf size={12} style={{ display: 'inline', color: '#7BB32E' }} /> en RD</span>
+        <span>
+          © {new Date().getFullYear()} NaturaJM V3. Todos los derechos
+          reservados.
+        </span>
+        <span>
+          Hecho con{" "}
+          <Leaf size={12} style={{ display: "inline", color: "#7BB32E" }} /> en
+          RD
+        </span>
       </FooterBottom>
     </FooterWrapper>
   );

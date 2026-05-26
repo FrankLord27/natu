@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import styled from 'styled-components';
-import { MessageCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
+import styled from "styled-components";
+import { MessageCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 const WhatsAppLink = styled(motion.a)`
   position: fixed;
@@ -27,7 +27,7 @@ const WhatsAppLink = styled(motion.a)`
 `;
 
 export const WhatsAppButton = () => {
-  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '18091234567';
+  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "18091234567";
 
   return (
     <WhatsAppLink
@@ -37,7 +37,7 @@ export const WhatsAppButton = () => {
       aria-label="Contactar por WhatsApp"
       initial={{ scale: 0, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: 1, type: 'spring' }}
+      transition={{ delay: 1, type: "spring" }}
     >
       <MessageCircle size={28} fill="white" />
     </WhatsAppLink>

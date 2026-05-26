@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/admin/orders
@@ -13,13 +13,13 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session?.user || (session.user as any).userType !== 'admin') {
-      return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+    if (!session?.user || (session.user as any).userType !== "admin") {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = parseInt(searchParams.get('limit') || '10');
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
     const skip = (page - 1) * limit;
 
     const [orders, total] = await Promise.all([
@@ -32,11 +32,11 @@ export async function GET(req: Request) {
             },
           },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         skip,
         take: limit,
       }),
-      prisma.order.count()
+      prisma.order.count(),
     ]);
 
     return NextResponse.json({
@@ -46,11 +46,14 @@ export async function GET(req: Request) {
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
-      }
+        totalPages: Math.ceil(total / limit),
+      },
     });
   } catch (error: any) {
-    console.error('Get orders error:', error);
-    return NextResponse.json({ error: 'Error al obtener pedidos' }, { status: 500 });
+    console.error("Get orders error:", error);
+    return NextResponse.json(
+      { error: "Error al obtener pedidos" },
+      { status: 500 },
+    );
   }
 }
