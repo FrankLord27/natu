@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   MessageCircle,
 } from "lucide-react";
+import { toast } from "sonner";
 
 const Page = styled.div`
   max-width: 1200px;
@@ -183,14 +184,16 @@ export default function Contacto() {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
       });
+      if (!res.ok) throw new Error("Error al enviar el mensaje");
       setSent(true);
+      toast.success("Mensaje enviado correctamente. Te contactaremos pronto.");
     } catch {
-      /* ignore */
+      toast.error("No se pudo enviar el mensaje. Por favor intenta de nuevo.");
     }
     setLoading(false);
   };

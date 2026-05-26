@@ -35,6 +35,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
 } from "lucide-react";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 const Page = styled.div`
@@ -100,7 +101,7 @@ const StatCard = styled(motion.div)`
 
 const ChartGrid = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 25px;
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
@@ -155,8 +156,6 @@ const AlertItem = styled.div`
   }
 `;
 
-const COLORS = ["#7BB32E", "#2B5A06", "#A9D669", "#1a1a1a", "#666"];
-
 export default function AdvancedMetrics() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -171,7 +170,7 @@ export default function AdvancedMetrics() {
       const json = await res.json();
       if (json.success) setData(json);
     } catch (err) {
-      console.error(err);
+      toast.error("Error al cargar analíticas");
     } finally {
       setLoading(false);
     }
@@ -252,7 +251,7 @@ export default function AdvancedMetrics() {
         </div>
       </ChartCard>
 
-      <ChartGrid style={{ gridTemplateColumns: "1fr 1fr" }}>
+      <ChartGrid>
         <ChartCard>
           <h3>Alertas de Inventario Crítico</h3>
           <AlertList>

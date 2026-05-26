@@ -7,6 +7,7 @@ import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const Page = styled.div`
   min-height: 100vh;
@@ -220,23 +221,19 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     if (searchParams.get("registered") === "true") {
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      toast.success("Cuenta creada exitosamente. Por favor inicia sesión.");
     }
   }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email || !password) {
-      setError("Por favor completa todos los campos");
+      toast.error("Por favor completa todos los campos");
       return;
     }
 
@@ -250,12 +247,12 @@ function LoginForm() {
       });
 
       if (result?.error) {
-        setError("Credenciales inválidas. Verifica tu email y contraseña.");
+        toast.error("Credenciales inválidas. Verifica tu email y contraseña.");
       } else {
         router.push("/mi-cuenta");
       }
-    } catch (err) {
-      setError("Ocurrió un error. Por favor intenta nuevamente.");
+    } catch {
+      toast.error("Ocurrió un error. Por favor intenta nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -266,14 +263,6 @@ function LoginForm() {
       <FormCard initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Title>Iniciar Sesión</Title>
         <Subtitle>Bienvenido de vuelta a NaturaJM</Subtitle>
-
-        {showSuccess && (
-          <SuccessMsg>
-            ✓ Cuenta creada exitosamente. Por favor inicia sesión.
-          </SuccessMsg>
-        )}
-
-        {error && <ErrorMsg>{error}</ErrorMsg>}
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>

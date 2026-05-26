@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Leaf, LogIn, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
+import { Leaf, LogIn, Eye, EyeOff } from "lucide-react";
 
 const Page = styled.div`
   min-height: 100vh;
@@ -121,13 +122,11 @@ export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     const result = await signIn("admin", {
@@ -137,8 +136,9 @@ export default function AdminLogin() {
     });
 
     if (result?.error) {
-      setError("Credenciales incorrectas");
+      toast.error("Credenciales incorrectas. Verifica tu email y contraseña.");
     } else {
+      toast.success("Sesión iniciada correctamente");
       router.push("/admin");
     }
     setLoading(false);
@@ -155,12 +155,6 @@ export default function AdminLogin() {
         </Logo>
 
         <Form onSubmit={handleSubmit}>
-          {error && (
-            <Error>
-              <AlertCircle size={16} /> {error}
-            </Error>
-          )}
-
           <InputGroup>
             <Label>Email</Label>
             <Input

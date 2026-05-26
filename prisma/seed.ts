@@ -11,10 +11,10 @@ async function main() {
   console.log("🌱 Seeding NaturaJM V3 database (Safe Mode)...");
 
   // Admin User
-  const passwordHash = await bcrypt.hash("admin123", 10);
+  const passwordHash = await bcrypt.hash("Admin123!", 10);
   await prisma.adminUser.upsert({
     where: { email: "admin@naturajm.com" },
-    update: {},
+    update: { passwordHash },
     create: {
       email: "admin@naturajm.com",
       name: "Admin NaturaJM",

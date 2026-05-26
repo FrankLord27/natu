@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock, Phone, Eye, EyeOff, Check, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const Page = styled.div`
   min-height: 100vh;
@@ -206,7 +207,6 @@ export default function Registrarse() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const passwordStrength = () => {
@@ -223,22 +223,21 @@ export default function Registrarse() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!formData.name || !formData.email || !formData.password) {
-      setError("Por favor completa todos los campos obligatorios");
+      toast.error("Por favor completa todos los campos obligatorios");
       return;
     }
 
     if (!isPasswordValid) {
-      setError(
+      toast.error(
         "La contraseña debe tener al menos 8 caracteres, una mayúscula y un número",
       );
       return;
     }
 
     if (!acceptedTerms) {
-      setError("Debes aceptar los términos y condiciones");
+      toast.error("Debes aceptar los términos y condiciones");
       return;
     }
 
@@ -257,10 +256,10 @@ export default function Registrarse() {
         throw new Error(data.error || "Error al registrar usuario");
       }
 
-      // Redirigir al login para que inicie sesión
+      toast.success("¡Cuenta creada! Ahora puedes iniciar sesión.");
       router.push("/login?registered=true");
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message || "Error al crear la cuenta");
     } finally {
       setLoading(false);
     }
@@ -271,8 +270,6 @@ export default function Registrarse() {
       <FormCard initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <Title>Crear Cuenta</Title>
         <Subtitle>Únete a NaturaJM y disfruta de todos los beneficios</Subtitle>
-
-        {error && <ErrorMsg>{error}</ErrorMsg>}
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>

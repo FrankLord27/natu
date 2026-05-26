@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const Page = styled.div`
   min-height: 100vh;
@@ -158,15 +159,13 @@ const SuccessCard = styled.div`
 export default function RecuperarContrasena() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
 
     if (!email) {
-      setError("Por favor ingresa tu correo electrónico");
+      toast.error("Por favor ingresa tu correo electrónico");
       return;
     }
 
@@ -187,7 +186,7 @@ export default function RecuperarContrasena() {
 
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message);
+      toast.error(err.message || "Error al enviar el correo de recuperación");
     } finally {
       setLoading(false);
     }
@@ -227,8 +226,6 @@ export default function RecuperarContrasena() {
           Ingresa tu correo electrónico y te enviaremos instrucciones para
           restablecer tu contraseña.
         </Subtitle>
-
-        {error && <ErrorMsg>{error}</ErrorMsg>}
 
         <Form onSubmit={handleSubmit}>
           <InputGroup>
