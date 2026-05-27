@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { Pool } from "pg";
 import { PrismaPg } from "@prisma/adapter-pg";
@@ -203,6 +204,208 @@ async function main() {
       categoryId: catMap["suplementos"],
       imageUrls: [
         "https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    // --- Productos adicionales para pruebas de paginación ---
+    {
+      name: "Aceite de Jojoba",
+      slug: "aceite-de-jojoba",
+      description:
+        "Aceite de jojoba puro para hidratación profunda de piel y cabello.",
+      price: 22.99,
+      stock: 40,
+      categoryId: catMap["aceites"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1607621048318-c4f2d9e47aca?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Aceite de Ricino",
+      slug: "aceite-de-ricino",
+      description:
+        "Aceite de ricino prensado en frío para fortalecer cabello y uñas.",
+      price: 18.99,
+      discountPrice: 14.99,
+      stock: 30,
+      categoryId: catMap["aceites"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1608571423880-54af0d1ed2ee?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Aceite de Almendras Dulces",
+      slug: "aceite-de-almendras-dulces",
+      description:
+        "Aceite de almendras dulces, suavizante natural para la piel sensible.",
+      price: 26.99,
+      stock: 20,
+      categoryId: catMap["aceites"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1612540139150-4b4e83a3de69?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Harina de Quinoa",
+      slug: "harina-de-quinoa",
+      description:
+        "Harina de quinoa sin gluten, rica en proteínas y aminoácidos esenciales.",
+      price: 16.99,
+      discountPrice: 13.99,
+      stock: 70,
+      categoryId: catMap["harinas"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Harina de Garbanzo",
+      slug: "harina-de-garbanzo",
+      description:
+        "Harina de garbanzo natural, ideal para rebozados y recetas veganas.",
+      price: 11.99,
+      stock: 90,
+      categoryId: catMap["harinas"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Harina de Maíz Morado",
+      slug: "harina-de-maiz-morado",
+      description:
+        "Harina de maíz morado orgánico, rica en antioxidantes y antocianinas.",
+      price: 13.99,
+      stock: 45,
+      categoryId: catMap["harinas"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1551754655-cd27e38d2076?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Mascarilla de Arcilla Verde",
+      slug: "mascarilla-de-arcilla-verde",
+      description:
+        "Mascarilla facial con arcilla verde pura, limpia los poros en profundidad.",
+      price: 21.99,
+      discountPrice: 17.99,
+      stock: 35,
+      categoryId: catMap["cosmeticos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1570194065650-d99fb4cb7af6?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Tónico Facial de Agua de Rosas",
+      slug: "tonico-facial-agua-de-rosas",
+      description:
+        "Tónico facial con agua de rosas pura, equilibra el pH y suaviza la piel.",
+      price: 19.99,
+      stock: 50,
+      categoryId: catMap["cosmeticos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Bálsamo Labial Natural",
+      slug: "balsamo-labial-natural",
+      description:
+        "Bálsamo labial con manteca de karité y aceite de vitamina E.",
+      price: 9.99,
+      stock: 120,
+      categoryId: catMap["cosmeticos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1617897903246-719242758050?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Espirulina en Polvo",
+      slug: "espirulina-en-polvo",
+      description:
+        "Espirulina orgánica en polvo, superalimento rico en proteínas y vitaminas.",
+      price: 27.99,
+      discountPrice: 23.99,
+      stock: 65,
+      categoryId: catMap["suplementos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Vitamina D3 Natural",
+      slug: "vitamina-d3-natural",
+      description:
+        "Vitamina D3 de origen natural para fortalecer huesos y el sistema inmune.",
+      price: 18.99,
+      stock: 80,
+      categoryId: catMap["suplementos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1550572017-edd951b55104?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Magnesio Quelado",
+      slug: "magnesio-quelado",
+      description:
+        "Suplemento de magnesio de alta absorción para el descanso y función muscular.",
+      price: 24.99,
+      discountPrice: 19.99,
+      stock: 45,
+      categoryId: catMap["suplementos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Omega-3 de Algas",
+      slug: "omega-3-de-algas",
+      description:
+        "Omega-3 vegano derivado de algas marinas, sin metales pesados.",
+      price: 36.99,
+      stock: 30,
+      categoryId: catMap["suplementos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1607734834519-d8576ae60ea6?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Probiótico Multiestrain",
+      slug: "probiotico-multiestrain",
+      description:
+        "Probiótico con 10 cepas activas para mejorar la salud intestinal.",
+      price: 41.99,
+      discountPrice: 35.99,
+      stock: 25,
+      categoryId: catMap["suplementos"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?w=800&q=80",
+      ],
+      brand: "NaturaJM",
+    },
+    {
+      name: "Aceite Esencial de Lavanda",
+      slug: "aceite-esencial-de-lavanda",
+      description:
+        "Aceite esencial de lavanda 100% puro, ideal para aromaterapia y relajación.",
+      price: 17.99,
+      stock: 60,
+      categoryId: catMap["aceites"],
+      imageUrls: [
+        "https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?w=800&q=80",
       ],
       brand: "NaturaJM",
     },
