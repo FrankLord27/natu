@@ -1,6 +1,3 @@
-[dotenv@17.3.1] injecting env (12) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
-Loaded Prisma config from prisma.config.js.
-
 -- CreateSchema
 CREATE SCHEMA IF NOT EXISTS "public";
 
